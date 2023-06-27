@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <ESPAsyncWebServer.h>
 #include "AsyncJson.h"
 #include "ArduinoJson.h"
@@ -13,24 +12,29 @@ const char* domain = DOMAIN;
 
 void setup() {
   Serial.begin(115200);
+  EEPROM.begin(512);
 
   WiFi.mode(WIFI_AP);
   WiFi.softAP(SSID, PASSWORD);
 
+  pinMode(34, INPUT);
+
    IPAddress apIP(192, 168, 1, 1);
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
 
-  if (!MDNS.begin("xense")) {
+  /* if (!MDNS.begin("xense")) {
     Serial.println("[ERROR] MDNS responder did not set up");
     while (1) {
       delay(1000);
     }
   } else {
     Serial.println("[INFO] MDNS setup is successful!");
-  }
+  } */
 
   
+  MDNS.begin("xense");
 
+  delay(2000);
  
 
   MDNS.addService("http", "tcp", 80);
@@ -57,6 +61,10 @@ void setup() {
     request->send(SPIFFS, "/mobile.css", "text/css");
   });
 
+   server.on("/login.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/login.css", "text/css");
+  });
+
   // Serve the JS file
   server.on("/app.js", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/app.js", "text/javascript");
@@ -64,11 +72,21 @@ void setup() {
 
   // Start the server
   server.begin();
-  MDNS.end();
+ /*  MDNS.end(); */
 
   Serial.println("Server started");
 }
 
-void loop() {
+void loop()
+{
+
+   // Print results to Serial Monitor to 2 decimal places
+ /*  Serial.print("Input Voltage = ");
+  Serial.println(checkVoltage(36), 2); */
+
+  Serial.print(checkIrradiance(36));
+  Serial.println("W/m");
   
+  // Short delay
+  delay(500);
 }

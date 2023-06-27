@@ -2,10 +2,12 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 350px;
+    width: 80%;
+    max-width: 350px;
     padding: 40px;
     transform: translate(-50%, -50%);
-    background: rgba(0,0,0,.5);
+    /* background: rgba(0,0,0,.5); */
+    background-color: #ffffff;
     box-sizing: border-box;
     box-shadow: 0 15px 25px rgba(0,0,0,.6);
     border-radius: 10px;
@@ -26,10 +28,10 @@
     width: 100%;
     padding: 10px 0;
     font-size: 16px;
-    color: #fff;
+    color: #333;
     margin-bottom: 30px;
     border: none;
-    border-bottom: 1px solid #fff;
+    border-bottom: 1px solid #03e9f4;;
     outline: none;
     background: transparent;
   }
@@ -39,7 +41,7 @@
     left: 0;
     padding: 10px 0;
     font-size: 16px;
-    color: #fff;
+    color: #03e9f4;
     pointer-events: none;
     transition: .5s;
   }
@@ -57,6 +59,7 @@
     display: inline-block;
     padding: 10px 20px;
     color: #03e9f4;
+    font-weight: bolder;
     font-size: 16px;
     text-decoration: none;
     text-transform: uppercase;

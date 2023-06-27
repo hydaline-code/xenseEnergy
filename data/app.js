@@ -9,6 +9,7 @@ const header = document.querySelector('header');
 const footer = document.querySelector('footer');
 const html = document.querySelector('html');
 
+
 let previousPage = 0;
 const savedNav = [];
 const pass = '1234';
@@ -21,7 +22,8 @@ function createHomePage() {
   const h2 = Object.assign(document.createElement('h1'), { id: 'sun-reading' });
   h2.textContent ='0';
   const p = document.createElement('p');
-  p.innerText = 'Brigth Light';
+  p.className = 'sun-light-summary';
+  /* p.innerText = 'Brigth Light'; */
   div.append(h2, p);
   const section = document.createElement('section');
   section.setAttribute('id', 'home');
@@ -52,7 +54,8 @@ document.querySelector('#passcode').addEventListener('keyup', (e) => {
     else {
       document.querySelector('body').classList.remove('body');
       document.querySelector('.login-box').remove();
-      html.classList.add('html');
+/*       html.classList.add('html');
+      html.classList.add('body'); */
       createHomePage();
       start = true
     }
@@ -65,13 +68,13 @@ document.querySelector('#passcode').addEventListener('keyup', (e) => {
 
 setInterval(() => {
   if(start) {
-    const sunReading = document.querySelector('#sun-reading');
-    sunReading.innerHTML = `${Math.floor(Math.random() * 11) + 10} W/m`;
-}
+    let update = Math.floor(Math.random() * 1000);
+    document.querySelector('#sun-reading').innerHTML = `${update} W/m&#178`;
+    document.querySelector('.sun-light-summary').textContent = update > 900 ? 'Bring Light' : 'Low Light';
+  }
 }, 1000)
 
 //End
-
 
 /* window.addEventListener('scroll', footerSectionHandler.toggleSectionBg); */
 
