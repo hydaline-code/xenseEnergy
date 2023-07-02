@@ -71,41 +71,48 @@ document.querySelector('#passcode').addEventListener('keyup', (e) => {
   }
 });
 
+function reconnect() {
+  if(start) {
+    document.querySelector('#sun-reading').innerHTML = `Connection Closed`;
+    document.querySelector('.sun-light-summary').innerHTML = `<i>Reconnecting...</i>`
+  }
+  setTimeout(() => {
+    socket = new WebSocket(websocketUrl);
+  }, 2000)
+}
+
 // Connection opened
 socket.addEventListener('open', function (event) {
   console.log('WebSocket connection established');
 });
 
 // Connection closed
-socket.addEventListener('close', function (event) {
+socket.addEventListener('close', () => {
   console.log('WebSocket connection closed');
-  setTimeout(() => {
-    socket = new WebSocket(websocketUrl);
-  }, 2000)
+  reconnect();
 });
 
 // Error occurred
-socket.addEventListener('error', function (event) {
-  console.error('WebSocket error:', event);
+socket.addEventListener('error', (e) => {
+  const { data } = e;
+  reconnect();
 });
 
 let passkey = true;
 
 // Receive message from server
 socket.addEventListener('message', (e) => {
-  console.log("Message received", e, typeof e );
+  /* console.log("Message received", e, typeof e ); */
   const {data} = e;
   if (passkey) {
     passkey = false
     pass = data;
   }
   if(start) {
-    const message = event.data;
-    const msg = parseFloat(message);
+    let msg = parseFloat(data);
     console.log('Received message from server:', msg);
-    document.querySelector('#sun-reading').innerHTML = `${message} W/m&#178;`;
-    document.querySelector('.sun-light-summary').innerHTML = message > 970 ? 'Bright Light' : 'Low light';
-
+    document.querySelector('#sun-reading').innerHTML = `${msg} W/m&#178;`;
+    document.querySelector('.sun-light-summary').innerHTML = msg > 970 ? 'Bright Light' : 'Low light';
   }
 });
 

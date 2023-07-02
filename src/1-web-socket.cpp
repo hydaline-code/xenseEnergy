@@ -1,5 +1,8 @@
 #include "Config.h"
 #define LED_BUILTIN 2
+#define MAX_CLIENTS 8
+
+String password = "1245";
 
 AsyncWebServer server(80);
 AsyncWebSocket webSocket("/ws");
@@ -9,6 +12,35 @@ unsigned long previousTime = 0;
 bool check = false;
 float irradiance = 0;
 char buffer[10];
+
+
+// Define an array to store connected clients
+AsyncWebSocketClient* connectedClients[MAX_CLIENTS];
+int numConnectedClients = 0;
+
+// Function to add a client to the connectedClients array
+void addClient(AsyncWebSocketClient* client) {
+  if (numConnectedClients < MAX_CLIENTS) {
+    connectedClients[numConnectedClients] = client;
+    numConnectedClients++;
+  } else {
+    // Handle maximum number of clients reached
+  }
+}
+
+// Function to remove a client from the connectedClients array
+void removeClient(AsyncWebSocketClient* client) {
+  for (int i = 0; i < numConnectedClients; i++) {
+    if (connectedClients[i] == client) {
+      // Shift remaining clients to fill the gap
+      for (int j = i; j < numConnectedClients - 1; j++) {
+        connectedClients[j] = connectedClients[j + 1];
+      }
+      numConnectedClients--;
+      break;
+    }
+  }
+}
 
 void handleWebSocketMessage(void* arg, uint8_t* data, size_t len) {
   // Handle WebSocket messages received from the browser
@@ -55,15 +87,23 @@ void handleWebSocketMessage(void* arg, uint8_t* data, size_t len) {
 void onWebSocketEvent(AsyncWebSocket* server, AsyncWebSocketClient* client, AwsEventType type, void* arg, uint8_t* data, size_t len) {
   if (type == WS_EVT_CONNECT) {
     // New client connected
+    addClient(client);
     uint32_t clientId = client->id();
     Serial.printf("WebSocket client #%u connected\n", client->id());
-    webSocket.text(clientId, "1245");
+    webSocket.text(clientId, password);
   } else if (type == WS_EVT_DISCONNECT) {
     // Client disconnected
     Serial.printf("WebSocket client #%u disconnected\n", client->id());
+    removeClient(client);
   } else if (type == WS_EVT_DATA) {
     // Received WebSocket data
     handleWebSocketMessage(arg, data, len);
+      for (int i = 0; i < numConnectedClients; i++) {
+        if (connectedClients[i] == client) {
+        removeClient(connectedClients[i]);
+        break;
+      }
+    }
   }
 }
 
@@ -77,6 +117,8 @@ void socketRun() {
   }
 
 void sendData() {
+  if (numConnectedClients < 1)
+    return;
   unsigned long interval = 500;
   currentTime = millis();
 
@@ -95,24 +137,74 @@ void sendData() {
   else return;
 }
 
-void webPage() {
-  // Serve static files
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
+/* String getContentType(String filename) {
+  if (filename.endsWith(".html")) return "text/html";
+  if (filename.endsWith(".css")) return "text/css";
+  if (filename.endsWith(".js")) return "text/javascript";
+  // Add more MIME types as needed
+  return "application/octet-stream";
+} */
+
+/* void webPage() {
+  // Enable Gzip compression for the entire server
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     Serial.println("Requesting index page...");
     request->send(SPIFFS, "/index.html", "text/html", false);
   });
 
-  // Serve the CSS file
   server.on("/mobile.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/mobile.css", "text/css");
   });
 
-  // Serve the JS file
   server.on("/app.js", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/app.js", "text/javascript");
   });
 
-  // Start the server
   server.begin();
- /*  MDNS.end(); */
+} */
+
+void webPage() {
+// Serve the compressed index.html file
+server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
+  Serial.println("Requesting index page...");
+  
+  // Get a reference to the response object
+  AsyncWebServerResponse* response = request->beginResponse(SPIFFS, "/index.html.gz", String(), false);
+
+  // Set the appropriate response headers for compressed content
+  response->addHeader("Content-Encoding", "gzip");
+  response->addHeader("Content-Type", "text/html");
+  
+  // Send the response
+  request->send(response);
+});
+
+
+// Serve the compressed mobile.css file
+server.on("/mobile.css", HTTP_GET, [](AsyncWebServerRequest* request) {
+  // Get a reference to the response object
+  AsyncWebServerResponse* response = request->beginResponse(SPIFFS, "/mobile.css.gz", "text/css");
+
+  // Set the appropriate response headers for compressed content
+  response->addHeader("Content-Encoding", "gzip");
+  
+  // Send the response
+  request->send(response);
+});
+
+// Serve the compressed app.js file
+server.on("/app.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+  // Get a reference to the response object
+  AsyncWebServerResponse* response = request->beginResponse(SPIFFS, "/app.js.gz", "text/javascript");
+
+  // Set the appropriate response headers for compressed content
+  response->addHeader("Content-Encoding", "gzip");
+  
+  // Send the response
+  request->send(response);
+});
+
+  server.begin();
 }
+
