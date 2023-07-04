@@ -40,41 +40,12 @@ void removeClient(AsyncWebSocketClient* client) {
 }
 
 void handleWebSocketMessage(void* arg, uint8_t* data, size_t len) {
-  // Handle WebSocket messages received from the browser
-  // You can process the data here and send responses back if needed
-  // Example: echoing the received message back to the client
   String message = "";
   for (size_t i = 0; i < len; i++) {
     message += (char)data[i];
   }
-
-  // Parse the received message as JSON
-  StaticJsonDocument<200> jsonDoc;
-  DeserializationError error = deserializeJson(jsonDoc, message);
-  if (error) {
-    Serial.print("JSON parsing error: ");
-    Serial.println(error.c_str());
-    return;
-  }
-
-  // Extract values from the JSON data and perform actions based on the received message
-  if (jsonDoc.containsKey("action")) {
-    String action = jsonDoc["action"].as<String>();
-
-    if (action == "led_on") {
-      // Code to turn on an LED or perform any other action
-      digitalWrite(LED_BUILTIN, HIGH);
-      Serial.println("Received 'led_on' action. Turning on the LED...");
-      // ...
-    } else if (action == "led_off") {
-      // Code to turn off an LED or perform any other action
-      digitalWrite(LED_BUILTIN, LOW);
-      Serial.println("Received 'led_off' action. Turning off the LED...");
-      // ...
-    } else {
-      Serial.println("Received unrecognized action: " + action);
-    }
-  }
+  switchTest(message);
+  writeVoltStoreInEEPROM(message);
 }
 
 String getPasscode() {

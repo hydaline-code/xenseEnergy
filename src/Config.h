@@ -27,4 +27,6 @@ void socketRun();
 void sendData();
 void webPage();
 String readVoltStoreInEEPROM();
+void writeVoltStoreInEEPROM(const String& volt);
+void switchTest(const String& message);
 String activeClientsJson(int clients);
