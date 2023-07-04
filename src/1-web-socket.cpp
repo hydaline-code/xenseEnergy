@@ -1,6 +1,5 @@
 #include "Config.h"
-#define LED_BUILTIN 2
-#define MAX_CLIENTS 8
+#include <cmath>
 
 String password = "1245";
 
@@ -9,10 +8,8 @@ AsyncWebSocket webSocket("/ws");
 
 unsigned long currentTime = 0;
 unsigned long previousTime = 0;
+String irradiance_str = "";
 bool check = false;
-float irradiance = 0;
-char buffer[10];
-
 
 // Define an array to store connected clients
 AsyncWebSocketClient* connectedClients[MAX_CLIENTS];
@@ -78,11 +75,15 @@ void handleWebSocketMessage(void* arg, uint8_t* data, size_t len) {
       Serial.println("Received unrecognized action: " + action);
     }
   }
-
-  // Send the received message back to the client
-  // webSocket.textAll(message);
 }
 
+String getPasscode() {
+  String jsonString;
+  StaticJsonDocument<50> jsonDoc;
+  jsonDoc["passCode"] = password;
+  serializeJson(jsonDoc, jsonString);
+  return jsonString;
+}
 
 void onWebSocketEvent(AsyncWebSocket* server, AsyncWebSocketClient* client, AwsEventType type, void* arg, uint8_t* data, size_t len) {
   if (type == WS_EVT_CONNECT) {
@@ -90,24 +91,26 @@ void onWebSocketEvent(AsyncWebSocket* server, AsyncWebSocketClient* client, AwsE
     addClient(client);
     uint32_t clientId = client->id();
     Serial.printf("WebSocket client #%u connected\n", client->id());
-    webSocket.text(clientId, password);
+    String pass = getPasscode();
+    String voltageInMemory = readVoltStoreInEEPROM();
+    String activeClients = activeClientsJson(numConnectedClients);
+    webSocket.text(clientId, pass);
+    webSocket.text(clientId, voltageInMemory);  
+    webSocket.textAll(activeClients);
+
   } else if (type == WS_EVT_DISCONNECT) {
     // Client disconnected
     Serial.printf("WebSocket client #%u disconnected\n", client->id());
     removeClient(client);
+    String activeClients = activeClientsJson(numConnectedClients);
+    webSocket.textAll(activeClients);
   } else if (type == WS_EVT_DATA) {
     // Received WebSocket data
     handleWebSocketMessage(arg, data, len);
-      for (int i = 0; i < numConnectedClients; i++) {
-        if (connectedClients[i] == client) {
-        removeClient(connectedClients[i]);
-        break;
-      }
-    }
   }
 }
 
-void socketRun() {
+ void socketRun() {
     // Setup WebSocket event handler
     webSocket.onEvent(onWebSocketEvent);
     // Route for WebSocket connection
@@ -116,19 +119,54 @@ void socketRun() {
     pinMode(LED_BUILTIN, OUTPUT);
   }
 
-void sendData() {
+/*
+  void sendData() {
   if (numConnectedClients < 1)
     return;
+
   unsigned long interval = 500;
   currentTime = millis();
 
   if (currentTime - previousTime > interval && check == false) {
-  irradiance = checkIrradiance(36);
-  dtostrf(irradiance, 6, 1, buffer);
-  String irradiance_str = String(buffer);
-  webSocket.textAll(irradiance_str);
-  previousTime = currentTime;
-  check = true;
+       Serial.println("Send Data");
+    irradiance = checkIrradiance(36);
+    dtostrf(irradiance, 6, 1, buffer);
+    irradiance_str = String(buffer);
+
+    // Iterate over the connected clients and send data to each one
+    for (int i = 0; i < numConnectedClients; i++) {
+      connectedClients[i]->text(irradiance_str);
+    }
+
+    previousTime = currentTime;
+    check = true;
+  }
+  else if (currentTime - previousTime > interval && check == true) {
+    check = false;
+    previousTime = currentTime;
+  }
+} */
+
+
+void sendData() {
+  if (numConnectedClients < 1)
+    return;
+  String jsonString;
+  unsigned long interval = 500;
+  currentTime = millis();
+  
+  if (currentTime - previousTime > interval && check == false) {
+    double irradiance = checkIrradiance(SENSOR_PIN);
+    irradiance = round(irradiance * 10.0) / 10.0;
+    StaticJsonDocument<200> jsonDoc;
+    jsonDoc["irr"] = irradiance;
+    serializeJson(jsonDoc, jsonString);
+    Serial.println(jsonString);
+    webSocket.textAll(jsonString);
+    previousTime = currentTime;
+    check = true;
+    Serial.print("Number of clients: ");
+    Serial.println(numConnectedClients);
   }
   else if (currentTime - previousTime > interval && check == true) {
     check = false;
@@ -137,17 +175,8 @@ void sendData() {
   else return;
 }
 
-/* String getContentType(String filename) {
-  if (filename.endsWith(".html")) return "text/html";
-  if (filename.endsWith(".css")) return "text/css";
-  if (filename.endsWith(".js")) return "text/javascript";
-  // Add more MIME types as needed
-  return "application/octet-stream";
-} */
 
-/* void webPage() {
-  // Enable Gzip compression for the entire server
-
+void webPage() {
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     Serial.println("Requesting index page...");
     request->send(SPIFFS, "/index.html", "text/html", false);
@@ -160,50 +189,6 @@ void sendData() {
   server.on("/app.js", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/app.js", "text/javascript");
   });
-
-  server.begin();
-} */
-
-void webPage() {
-// Serve the compressed index.html file
-server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
-  Serial.println("Requesting index page...");
-  
-  // Get a reference to the response object
-  AsyncWebServerResponse* response = request->beginResponse(SPIFFS, "/index.html.gz", String(), false);
-
-  // Set the appropriate response headers for compressed content
-  response->addHeader("Content-Encoding", "gzip");
-  response->addHeader("Content-Type", "text/html");
-  
-  // Send the response
-  request->send(response);
-});
-
-
-// Serve the compressed mobile.css file
-server.on("/mobile.css", HTTP_GET, [](AsyncWebServerRequest* request) {
-  // Get a reference to the response object
-  AsyncWebServerResponse* response = request->beginResponse(SPIFFS, "/mobile.css.gz", "text/css");
-
-  // Set the appropriate response headers for compressed content
-  response->addHeader("Content-Encoding", "gzip");
-  
-  // Send the response
-  request->send(response);
-});
-
-// Serve the compressed app.js file
-server.on("/app.js", HTTP_GET, [](AsyncWebServerRequest* request) {
-  // Get a reference to the response object
-  AsyncWebServerResponse* response = request->beginResponse(SPIFFS, "/app.js.gz", "text/javascript");
-
-  // Set the appropriate response headers for compressed content
-  response->addHeader("Content-Encoding", "gzip");
-  
-  // Send the response
-  request->send(response);
-});
 
   server.begin();
 }

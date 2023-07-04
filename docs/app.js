@@ -104,10 +104,19 @@ let passkey = true;
 socket.addEventListener('message', (e) => {
   /* console.log("Message received", e, typeof e ); */
   const {data} = e;
-  if (passkey) {
-    passkey = false
-    pass = data;
+  if (data.hasOwnProperty("voltageInMemory")) {
+    console.log(voltageInMemory[0]);
+    console.log(voltageInMemory[1]);
   }
+
+  if (data.hasOwnProperty("passCode")) {
+    console.log(passCode);
+    if (passkey) {
+      passkey = false
+      pass = passCode;
+    }
+  }
+
   if(start) {
     let msg = parseFloat(data);
     console.log('Received message from server:', msg);
@@ -135,7 +144,7 @@ window.addEventListener('touchstart', (e) => {
   console.log(e.target);
   const { target } = e;
   if (target === document.querySelector('.item1') && led) {
-    const message = { action: 'led_on'}
+    const message = { action: 'led_on' }
     const jsonString = JSON.stringify(message);
     socket.send(jsonString);
     led = false;
