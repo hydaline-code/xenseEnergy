@@ -9,15 +9,14 @@ const icons = {
 const websocketUrl = 'ws://192.168.1.1/ws';
 let socket = new WebSocket(websocketUrl);
 
-let voltageInMem= { min:100, max:0 };
+let lightInMem = { min: 0, max: 0 };
+let lightInLocal = { min: 0, max: 0 };
 
 let minnn = 0;
 
 const main = document.querySelector('main');
 const header = document.querySelector('header');
 const footer = document.querySelector('footer');
-const html = document.querySelector('html');
-
 
 let previousPage = 0;
 const savedNav = [];
@@ -26,8 +25,7 @@ let start = false;
 let msg = null;
 
 function clientConnected() {
-  footer.firstElementChild.innerHTML = `
-  ${msg[0]}/${msg[1]} users connected`;
+  footer.firstElementChild.innerHTML = `Numbers of connected users: ${msg[1]}`;
 }
 
 function item1Content() {
@@ -44,14 +42,15 @@ function item1Content() {
   article.className = 'sunH';
   article.append(sunContainer, h2);
   h2.innerHTML = `Sunlight intensity threshold for power activation`;
-  const section = document.createElement('section');
-  section.className = 'minMaxContainer';
-  const min = document.createElement('h2');
-  const max = document.createElement('h2');
-  min.setAttribute('id', 'minVoltOnServer');
-  max.setAttribute('id', 'maxVoltOnServer');
-  item1.append(article, section);
-  
+
+  const article2 = document.createElement('article');
+  article2.setAttribute('id', 'threshold');
+  const span = document.createElement('span');
+  const span2 = document.createElement('span');
+  span.innerHTML = icons.enter;
+  span2.innerText = 'Change threshold';
+  article2.append(span, span2);
+  item1.append(article, article2); 
 }
 
 function createHomePage() {
@@ -102,7 +101,7 @@ document.querySelector('#passcode').addEventListener('keyup', (e) => {
       createHomePage();
       clientConnected();
       document.querySelector('.nrTxt').innerHTML = `Power activation for the connected Energy manager is between: <br> 
-      ${voltageInMem.min} W/m&#178; and ${voltageInMem.max} W/m&#178;`;
+      ${lightInMem.min} W/m&#178; and ${lightInMem.max} W/m&#178;`;
       start = true;
     }
   }
@@ -150,8 +149,8 @@ socket.addEventListener('message', (e) => {
     const voltageInMemory = jsonData.voltageInMemory;
     console.log(`Voltage in Memory ${voltageInMemory[0]}`);
     console.log(`Voltage in Memory ${voltageInMemory[1]}`);
-    voltageInMem.min = voltageInMemory[0];
-    voltageInMem.max = voltageInMemory[1];
+    lightInMem.min = voltageInMemory[0];
+    lightInMem.max = voltageInMemory[1];
   }
 
   if (jsonData.hasOwnProperty("passCode")) {
@@ -212,5 +211,49 @@ window.addEventListener('touchstart', (e) => {
     socket.send(jsonString);
     led = true;
   }
+  else if (target.matches('#threshold, #threshold *')) {
+    console.log("Im here");
+    setLightThreshold('Set minimum intensity', lightInMem.min, 'min-light');
+  }
 });
 
+
+function setLightThreshold(labelTxt, voltInMem, submitID) {
+  const form = document.createElement('form');
+  form.className = 'light-form';
+  const label = document.createElement('label');
+  label.setAttribute('for', 'entry');
+  label.textContent = labelTxt;
+  const input = document.createElement('input');
+  input.setAttribute('type', 'number');
+  input.setAttribute('id', 'entry');
+  input.setAttribute('name', 'entry');
+  input.setAttribute('min', '0');
+  input.setAttribute('max', '1000');
+  input.setAttribute('required', 'true');
+  input.setAttribute('value', voltInMem);
+  const submitButton = document.createElement('button');
+  submitButton.setAttribute('type', 'submit');
+  submitButton.setAttribute('id', submitID);
+  submitButton.innerHTML = icons.enter;
+  form.append(label, input, submitButton);
+  document.querySelector('.item1').appendChild(form);
+  document.querySelector('#threshold').classList.add('hidden');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault(); // Prevent form submission
+    const formData = new FormData(form);
+    const formDataObject = Object.fromEntries(formData.entries());
+    if (submitID === 'min-light') {
+      lightInLocal.min = formDataObject.entry;
+    }
+    else if ('max-light') {
+      lightInLocal.max = formDataObject.entry;
+    }
+    console.log(lightInLocal);
+  });
+}
+
+/* // for minVolt
+setLightThreshold('Set minimum intensity', lightInMem.min, 'min-light');
+// for maxVolt
+setLightThreshold('Set minimum intensity', lightInMem.max, 'max-light'); */

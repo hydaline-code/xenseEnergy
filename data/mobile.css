@@ -216,10 +216,6 @@ html {
   color: #c1aba6;
 }
 
-
-
-
-
 header {
   margin: 0 auto;
   padding: 20px 20px 0 20px;
@@ -406,4 +402,57 @@ main {
 		0 0 0 100px #FFDE0000,
 		0 0 40px 100px #FFDE0010;
 	}
+}
+
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+footer span {
+  position: absolute;
+  bottom: 0;
+  color: #141e30a4;
+  padding: 12px 0;
+}
+
+#threshold {
+  color: #fff;
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  overflow: hidden;
+}
+
+#threshold span {
+  font-size: 0.91rem;
+  margin-left: 12px;
+ 
+}
+
+#threshold span:last-child {
+  border: 1px solid #fff;
+  background-color: #3AA945;;
+  padding: 3px 8px;
+
+}
+
+#threshold span svg {
+  transform: scale(0.5);
+}
+
+.hidden {
+  display: none;
+}
+
+.light-form {
+  color: #141e30a4;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
