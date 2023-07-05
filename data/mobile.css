@@ -292,6 +292,7 @@ main {
 }
 
 #home {
+  position: relative;
   border-top: 1px solid #141e3048;
   margin: 0 auto;
   display: flex;
@@ -330,7 +331,7 @@ main {
 }
 
 .sun-light-summary {
-  color: #5180d8;
+  color: #3AA945;
   font-size: .8rem;
 }
 

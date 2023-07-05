@@ -1,6 +1,9 @@
 
 const icons = {
   solarPower: `<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48"><path d="m80-80 80-400h640l80 400H80Zm40-740v-60h120v60H120Zm34 680h296v-110H176l-22 110Zm80-460-43-42 85-85 43 42-85 85Zm-46 290h262v-110H210l-22 110Zm292-390q-74 0-125-52.5T300-880h60q3 50 37 85t83 35q49 0 83-35t37-85h60q-4 75-55 127.5T480-700Zm0-180Zm-30 360v-120h60v120h-60Zm60 380h296l-22-110H510v110Zm0-170h262l-22-110H510v110Zm216-291-85-85 42-42 86 84-43 43Zm-6-219v-60h120v60H720Z"/></svg>`,
+  enter: `<svg width="34" height="27" viewBox="0 0 34 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M19.0401 0.986284C19.4794 0.547044 20.0753 0.300293 20.6965 0.300293C21.3178 0.300293 21.9136 0.547044 22.353 0.986284L32.8964 11.5297C33.3356 11.969 33.5824 12.5649 33.5824 13.1862C33.5824 13.8074 33.3356 14.4033 32.8964 14.8426L22.353 25.386C21.9111 25.8128 21.3193 26.049 20.705 26.0436C20.0907 26.0383 19.503 25.7919 19.0686 25.3575C18.6342 24.9231 18.3878 24.3354 18.3824 23.7211C18.3771 23.1068 18.6133 22.515 19.0401 22.0731L25.3825 15.5291H3.12423C2.50283 15.5291 1.90688 15.2823 1.46749 14.8429C1.0281 14.4035 0.78125 13.8076 0.78125 13.1862C0.78125 12.5648 1.0281 11.9688 1.46749 11.5294C1.90688 11.09 2.50283 10.8432 3.12423 10.8432H25.3825L19.0401 4.29925C18.6008 3.85988 18.3541 3.26404 18.3541 2.64277C18.3541 2.02149 18.6008 1.42566 19.0401 0.986284Z" fill="#3AA945"/>
+  </svg>`
 };
 
 const websocketUrl = 'ws://192.168.1.1/ws';
@@ -20,6 +23,12 @@ let previousPage = 0;
 const savedNav = [];
 let pass = '';
 let start = false;
+let msg = null;
+
+function clientConnected() {
+  footer.firstElementChild.innerHTML = `
+  ${msg[0]}/${msg[1]} users connected`;
+}
 
 function item1Content() {
   const item1 = document.querySelector('.item1');
@@ -91,6 +100,7 @@ document.querySelector('#passcode').addEventListener('keyup', (e) => {
 /*       html.classList.add('html');
       html.classList.add('body'); */
       createHomePage();
+      clientConnected();
       document.querySelector('.nrTxt').innerHTML = `Power activation for the connected Energy manager is between: <br> 
       ${voltageInMem.min} W/m&#178; and ${voltageInMem.max} W/m&#178;`;
       start = true;
@@ -162,10 +172,13 @@ socket.addEventListener('message', (e) => {
   }
 
   if (jsonData.hasOwnProperty("clients")) {
-    const clients = jsonData.clients;
-    console.log(clients[0]);
-    console.log(clients[1]);
-  }  
+    msg = jsonData.clients;
+    console.log(msg[0]);
+    console.log(msg[1]);
+    if(start) {
+      clientConnected();
+    }
+  } 
 });
 
 
