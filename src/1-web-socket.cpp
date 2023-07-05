@@ -44,8 +44,8 @@ void handleWebSocketMessage(void* arg, uint8_t* data, size_t len) {
   for (size_t i = 0; i < len; i++) {
     message += (char)data[i];
   }
-  switchTest(message);
-  writeVoltStoreInEEPROM(message);
+ /*  switchTest(message);
+  writeVoltStoreInEEPROM(message); */
 }
 
 String getPasscode() {
