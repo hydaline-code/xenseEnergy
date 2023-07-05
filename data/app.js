@@ -6,6 +6,9 @@ const icons = {
 const websocketUrl = 'ws://192.168.1.1/ws';
 let socket = new WebSocket(websocketUrl);
 
+let voltageInMem= { min:100, max:0 };
+
+let minnn = 0;
 
 const main = document.querySelector('main');
 const header = document.querySelector('header');
@@ -17,7 +20,30 @@ let previousPage = 0;
 const savedNav = [];
 let pass = '';
 let start = false;
-let msg = "";
+
+function item1Content() {
+  const item1 = document.querySelector('.item1');
+  const h2 = document.createElement('h2');
+  const article = document.createElement('article');
+  const div = document.createElement('div');
+  const sunContainer = document.createElement('div');
+  sunContainer.className = 'sunContainer';
+  
+  div.className = 'sun';
+  h2.className = 'nrTxt';
+  sunContainer.append(div);
+  article.className = 'sunH';
+  article.append(sunContainer, h2);
+  h2.innerHTML = `Sunlight intensity threshold for power activation`;
+  const section = document.createElement('section');
+  section.className = 'minMaxContainer';
+  const min = document.createElement('h2');
+  const max = document.createElement('h2');
+  min.setAttribute('id', 'minVoltOnServer');
+  max.setAttribute('id', 'maxVoltOnServer');
+  item1.append(article, section);
+  
+}
 
 function createHomePage() {
   const div = document.createElement('div');
@@ -40,6 +66,8 @@ function createHomePage() {
   }
   main.append(div, section);  
   document.querySelector('.item2').innerHTML = `Maximum normal surface irradiance is approximately 1000 W/m&#178; at sea level on a clear day`
+
+  item1Content();
 }
 
 
@@ -63,7 +91,9 @@ document.querySelector('#passcode').addEventListener('keyup', (e) => {
 /*       html.classList.add('html');
       html.classList.add('body'); */
       createHomePage();
-      start = true
+      document.querySelector('.nrTxt').innerHTML = `Power activation for the connected Energy manager is between: <br> 
+      ${voltageInMem.min} W/m&#178; and ${voltageInMem.max} W/m&#178;`;
+      start = true;
     }
   }
   else {
@@ -108,8 +138,10 @@ socket.addEventListener('message', (e) => {
 
   if (jsonData.hasOwnProperty("voltageInMemory")) {
     const voltageInMemory = jsonData.voltageInMemory;
-    console.log(voltageInMemory[0]);
-    console.log(voltageInMemory[1]);
+    console.log(`Voltage in Memory ${voltageInMemory[0]}`);
+    console.log(`Voltage in Memory ${voltageInMemory[1]}`);
+    voltageInMem.min = voltageInMemory[0];
+    voltageInMem.max = voltageInMemory[1];
   }
 
   if (jsonData.hasOwnProperty("passCode")) {

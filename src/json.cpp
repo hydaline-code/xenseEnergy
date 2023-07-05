@@ -44,12 +44,10 @@ String activeClientsJson(int clients) {
     return jsonString;
 }
 
-void writeVoltStoreInEEPROM(String volt) {
-    /* double irradiance = checkIrradiance(SENSOR_PIN);
-    irradiance = round(irradiance * 10.0) / 10.0; */
-
-     StaticJsonDocument<200> jsonDoc;
-  DeserializationError error = deserializeJson(jsonDoc, volt);
+void switchTest(const String& message) {
+  // Parse the received message as JSON
+  StaticJsonDocument<200> jsonDoc;
+  DeserializationError error = deserializeJson(jsonDoc, message);
   if (error) {
     Serial.print("JSON parsing error: ");
     Serial.println(error.c_str());
@@ -74,4 +72,50 @@ void writeVoltStoreInEEPROM(String volt) {
       Serial.println("Received unrecognized action: " + action);
     }
   }
+}
+
+
+void writeVoltStoreInEEPROM(const String& volt) {
+    StaticJsonDocument<200> jsonDoc;
+    DeserializationError error = deserializeJson(jsonDoc, volt);
+    if (error) {
+        Serial.print("JSON parsing error: ");
+        Serial.println(error.c_str());
+        return;
+    }
+
+    // Extract values from the JSON data and perform actions based on the received message
+    if (jsonDoc.containsKey("minVolt")) {
+        double minVolt = jsonDoc["minVolt"].as<double>();
+
+        minVolt = round(minVolt * 10.0) / 10.0;
+        double storedMinVolt;
+        EEPROM.get(MIN_VOLT_ADDR, storedMinVolt);
+
+        if (minVolt >= 0 && minVolt <= 1000 && minVolt != storedMinVolt) {
+            EEPROM.put(MIN_VOLT_ADDR, minVolt);
+            EEPROM.commit();
+        }
+        else {
+            return;
+        }
+    }
+    else if (jsonDoc.containsKey("maxVolt")) {
+        double maxVolt = jsonDoc["maxVolt"].as<double>();
+
+        maxVolt = round(maxVolt * 10.0) / 10.0;
+        double storedMaxVolt;
+        EEPROM.get(MAX_VOLT_ADDR, storedMaxVolt);
+
+        if (maxVolt >= 0 && maxVolt <= 1000 && maxVolt != storedMaxVolt) {
+            EEPROM.put(MAX_VOLT_ADDR, maxVolt);
+            EEPROM.commit();
+        }
+        else {
+            return;
+        }
+    }
+    else {
+        return;
+    }
 }

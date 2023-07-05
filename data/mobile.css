@@ -268,9 +268,9 @@ header h1 {
 
 main {
   transition: 0.3s ease all;
-  margin-bottom: 96px;
   display: flex;
   flex-direction: column;
+  gap: 32px;
   color: #333;
   margin: 0 auto;
   max-width: var(--max-width);
@@ -292,50 +292,117 @@ main {
 }
 
 #home {
+  border-top: 1px solid #141e3048;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 32px;
-  padding: 24px;
+  gap: 24px;
   width: 100%;
-  box-sizing: border-box;
-  border-radius: 10px;
+  background-image: linear-gradient(to bottom, #f5f5f5, #e8e8e8);
+  padding: 24px;
 }
 
 .item {
   width: 100%;
-  padding: 10px;
   box-sizing: border-box;
   color: white;
-  border-radius: 10px; 
-  background-image: linear-gradient(to bottom, #f5f5f5, #e8e8e8);
 }
 
 .item1 {
   height: 350px;
   display: flex;
+  flex-direction: column;
   box-sizing: border-box;
-  border-radius: 10px;
 }
 
 .item2 {
-  color: #333;
+  color: #141e30;
   height: 100px;
-  /* background: rgba(0,0,0,.5); */
-  /* background-color: #ff8c00; */
   box-sizing: border-box;
-  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1.5;
+  line-height: 1.4;
+  font-size: 0.91rem;
   font-weight: 400;
 }
 
 .sun-light-summary {
-  color: #141e30;
-  margin-bottom: 32px;
+  color: #5180d8;
   font-size: .8rem;
+}
+
+.nrTxt {
+  color: #141e30a4;
+  font-size: .91rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.sunH {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  background-color: #fff;
+  position: absolute;
+  left: 0;
+  padding-right: 24px;
+}
+
+.sunContainer {
+  background: linear-gradient(#141e30, #243b55);
+  width: 150px;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sun {
+  transform: scale(0.3);
+	width: 80px;
+	height: 80px;
+	background-color: #FFDE00;
+	border-radius: 50%;
+	box-shadow:
+		0 0 0 20px #FFDE0080,
+		0 0 0 40px #FFDE0040,
+		0 0 0 60px #FFDE0020,
+		0 0 0 80px #FFDE0010,
+		0 0 0 100px #FFDE0000,
+		0 0 40px 100px #FFDE0010;
+	animation:
+		sunrise 2s infinite linear forwards,
+		rays 2s 2s infinite linear;
+}
+
+@keyframes sunrise {
+	0% {
+		box-shadow: none;
+	}
+}
+
+@keyframes rays {
+	0% {
+		box-shadow: 
+		0 0 0 0 #FFDE0080,
+		0 0 0 20px #FFDE0080,
+		0 0 0 40px #FFDE0040,
+		0 0 0 60px #FFDE0020,
+		0 0 0 80px #FFDE0010,
+		0 0 40px 100px #FFDE0010;
+	}
+	100% {
+		box-shadow: 
+		0 0 0 20px #FFDE0080,
+		0 0 0 40px #FFDE0040,
+		0 0 0 60px #FFDE0020,
+		0 0 0 80px #FFDE0010,
+		0 0 0 100px #FFDE0000,
+		0 0 40px 100px #FFDE0010;
+	}
 }
