@@ -446,7 +446,8 @@ footer span {
   display: none;
 }
 
-.light-form {
+#min-entry, 
+#max-entry {
   color: #141e30a4;
   position: fixed;
   top: 50%;

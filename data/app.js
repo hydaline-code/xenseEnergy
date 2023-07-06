@@ -196,6 +196,66 @@ function sendMessage(message) {delay(500);
 
 let led = true;
 
+function setLightThreshold(labelTxt, lightInMem, formID) {
+  const form = document.createElement('form');
+  form.setAttribute('id', formID);
+
+  const label = document.createElement('label');
+  label.setAttribute('for', 'entry');
+  label.textContent = labelTxt;
+
+  const input = document.createElement('input');
+  input.setAttribute('type', 'number');
+  input.setAttribute('name', 'entry');
+  input.setAttribute('min', '0');
+  input.setAttribute('max', '1000');
+  input.setAttribute('required', 'true');
+  input.setAttribute('value', lightInMem);
+
+  const submitButton = document.createElement('button');
+  submitButton.setAttribute('type', 'submit');
+  submitButton.innerHTML = icons.enter;
+
+  form.append(label, input, submitButton);
+  document.querySelector('.item1').appendChild(form);
+  document.querySelector('#threshold').classList.add('hidden');
+}
+
+window.addEventListener('submit', (e) => {
+  e.preventDefault(); // Prevent form submission
+
+  const { target } = e;
+  console.log(target);
+
+  // Check if the target matches a specific selector
+  if (target.matches('#min-entry')) {
+    const input = target.querySelector('input');
+    if (input) {
+      // Extract the input value
+      lightInLocal.min = parseInt(input.value, 10);
+      document.querySelector('#min-entry').remove();
+      setLightThreshold('Set maximum intensity', lightInMem.max, 'max-entry');
+    }
+  }
+  else if (target.matches('#max-entry')) {
+    const input = target.querySelector('input');
+    if (input) {
+      lightInLocal.max = parseInt(input.value, 10);
+      document.querySelector('#min-entry').remove();
+    }
+  }
+  console.log(lightInLocal);
+
+});
+
+
+
+
+/* // for minVolt
+setLightThreshold('Set minimum intensity', lightInMem.min, 'min-entry');
+// for maxVolt
+setLightThreshold('Set minimum intensity', lightInMem.max, 'max-light'); */
+
 window.addEventListener('touchstart', (e) => {
   console.log(e.target);
   const { target } = e;
@@ -213,47 +273,8 @@ window.addEventListener('touchstart', (e) => {
   }
   else if (target.matches('#threshold, #threshold *')) {
     console.log("Im here");
-    setLightThreshold('Set minimum intensity', lightInMem.min, 'min-light');
+    setLightThreshold('Set minimum intensity', lightInMem.min, 'min-entry')
   }
 });
 
 
-function setLightThreshold(labelTxt, voltInMem, submitID) {
-  const form = document.createElement('form');
-  form.className = 'light-form';
-  const label = document.createElement('label');
-  label.setAttribute('for', 'entry');
-  label.textContent = labelTxt;
-  const input = document.createElement('input');
-  input.setAttribute('type', 'number');
-  input.setAttribute('id', 'entry');
-  input.setAttribute('name', 'entry');
-  input.setAttribute('min', '0');
-  input.setAttribute('max', '1000');
-  input.setAttribute('required', 'true');
-  input.setAttribute('value', voltInMem);
-  const submitButton = document.createElement('button');
-  submitButton.setAttribute('type', 'submit');
-  submitButton.setAttribute('id', submitID);
-  submitButton.innerHTML = icons.enter;
-  form.append(label, input, submitButton);
-  document.querySelector('.item1').appendChild(form);
-  document.querySelector('#threshold').classList.add('hidden');
-  form.addEventListener('submit', (e) => {
-    e.preventDefault(); // Prevent form submission
-    const formData = new FormData(form);
-    const formDataObject = Object.fromEntries(formData.entries());
-    if (submitID === 'min-light') {
-      lightInLocal.min = formDataObject.entry;
-    }
-    else if ('max-light') {
-      lightInLocal.max = formDataObject.entry;
-    }
-    console.log(lightInLocal);
-  });
-}
-
-/* // for minVolt
-setLightThreshold('Set minimum intensity', lightInMem.min, 'min-light');
-// for maxVolt
-setLightThreshold('Set minimum intensity', lightInMem.max, 'max-light'); */
