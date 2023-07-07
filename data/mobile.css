@@ -31,21 +31,16 @@ html {
 }
 
 .body {
-  font-family: 'Inter', sans-serif;
   background: linear-gradient(#141e30, #243b55); 
   font-size: 16px;
-  /* background-color: #f5f5f5; */
-  background-color: #0000;
   margin:0;
   padding:0;
 }
 
-/* body {
-
-  
-  background-color: #f5f5f5;
+body {
+  font-family: 'Inter', sans-serif;
   background-image: linear-gradient(to bottom, #f5f5f5, #e8e8e8);
-} */
+}
 
 
 .login-box {
@@ -218,7 +213,6 @@ html {
 
 header {
   margin: 0 auto;
-  padding: 20px 20px 0 20px;
 }
 
 header h1 {
@@ -246,31 +240,14 @@ header h1 {
     transition: 0.3s ease all;
 }
 
-.add-device-btn {
-  position: fixed;
-  right: 20px;
-  margin: 0;
-  padding: 0;
-  bottom: 96px;
-  max-width: var(--max-width);;
-  height: 48px;
-  border: none;
-  border-radius: 50%;
-  font-size: 40px;
-  cursor: pointer;
-  overflow: hidden;
-  background-color: transparent;
-}
-
 main {
   transition: 0.3s ease all;
   display: flex;
   flex-direction: column;
-  gap: 32px;
   color: #333;
   margin: 0 auto;
   max-width: var(--max-width);
-  padding: 50px 0 50px 0;
+  padding: 0 0 50px 0;
 }
 
 .sun-reading-container {
@@ -279,6 +256,8 @@ main {
   align-items: center;
   justify-content: center;
   font-size: 12px;
+  background-color: #fff;
+  padding: 60px 0 24px 0;
 }
 
 #sun-reading {
@@ -289,7 +268,6 @@ main {
 
 #home {
   position: relative;
-  border-top: 1px solid #141e3048;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -297,7 +275,6 @@ main {
   align-items: center;
   gap: 24px;
   width: 100%;
-  background-image: linear-gradient(to bottom, #f5f5f5, #e8e8e8);
   padding: 24px;
 }
 
@@ -308,15 +285,13 @@ main {
 }
 
 .item1 {
-  height: 350px;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
+  gap: 24px;
 }
 
 .item2 {
   color: #141e30;
-  height: 100px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -345,8 +320,6 @@ main {
   justify-content: center;
   gap: 24px;
   background-color: #fff;
-  position: absolute;
-  left: 0;
   padding-right: 24px;
 }
 
@@ -420,9 +393,12 @@ footer span {
 #threshold {
   color: #fff;
   position: absolute;
-  bottom: 24px;
+  right: 50%;
+  transform: translateX(-50%);
+  bottom: 60px;
   right: 24px;
   overflow: hidden;
+  z-index: 2;
 }
 
 #threshold span {
@@ -433,7 +409,7 @@ footer span {
 
 #threshold span:last-child {
   border: 1px solid #fff;
-  background-color: #3AA945;;
+  background-color: #3AA945;
   padding: 3px 8px;
 
 }
@@ -442,18 +418,64 @@ footer span {
   transform: scale(0.5);
 }
 
-.hidden {
-  display: none;
-}
 
-#min-entry, 
-#max-entry {
+.set-irr-form {
   color: #141e30a4;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   gap: 12px;
+  align-items: center;
+  background-color: #fff;
+  padding: 24px;
+  position: relative;
+  height: 250px;
+}
+
+#max-entry-input,
+#min-entry-input {
+  border: 1px solid #f5f5f5;
+  height: 40px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  width: 80%;
+  background-image: linear-gradient(to bottom, #f5f5f5, #e8e8e8);
+}
+
+#back {
+  position: absolute;
+  left: 80px;
+  bottom: 100px;
+  padding: 4px 12px;
+  background-color: #fff;
+  border: 1px solid #141e303d;
+}
+
+#submit-next {
+  position: absolute;
+  right: 80px;
+  bottom: 100px;
+  padding: 4px 12px;
+  background-color: #fff;
+  border: 1px solid #141e303d;
+  color: #fff;
+  background-color: #3AA945;
+}
+
+#back-btn {
+  border: none;
+  background-color: transparent;
+  margin-top: 90px;
+}
+
+#back-btn svg {
+  transform: scale(0.5) rotate(180deg);
+}
+
+#submit {
+  position: absolute;
+  bottom: 100px;
+  padding: 4px 12px;
+  background-color: #fff;
+  border: 1px solid #141e303d;
+  color: #141e30;
 }

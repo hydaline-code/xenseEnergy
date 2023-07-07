@@ -7,8 +7,12 @@ const icons = {
 };
 
 const websocketUrl = 'ws://192.168.1.1/ws';
-let socket = new WebSocket(websocketUrl);
+let socket = new WebSocket(websocketUrl);;
 
+/* window.addEventListener('load', function() {
+  
+});
+ */
 let lightInMem = { min: 0, max: 0 };
 let lightInLocal = { min: 0, max: 0 };
 
@@ -16,8 +20,6 @@ const main = document.querySelector('main');
 const header = document.querySelector('header');
 const footer = document.querySelector('footer');
 
-let previousPage = 0;
-const savedNav = [];
 let pass = '';
 let start = false;
 let msg = null;
@@ -28,6 +30,17 @@ function clientConnected() {
   else if (msg[0] > 2)  
     footer.firstElementChild.innerHTML = `You and ${msg[0] - 1} are connected are connected to Power Manager`;
   else footer.firstElementChild.innerHTML = 'You are connected to your Energy Manager'
+}
+
+function createThresholdBtn() {
+  const article2 = document.createElement('article');
+  article2.setAttribute('id', 'threshold');
+  const span = document.createElement('span');
+  const span2 = document.createElement('span');
+  span.innerHTML = icons.enter;
+  span2.innerText = 'Change threshold';
+  article2.append(span, span2);
+  document.querySelector('main').append(article2);
 }
 
 function item1Content() {
@@ -44,40 +57,29 @@ function item1Content() {
   article.className = 'sunH';
   article.append(sunContainer, h2);
   h2.innerHTML = `Sunlight intensity threshold for power activation`;
-
-  const article2 = document.createElement('article');
-  article2.setAttribute('id', 'threshold');
-  const span = document.createElement('span');
-  const span2 = document.createElement('span');
-  span.innerHTML = icons.enter;
-  span2.innerText = 'Change threshold';
-  article2.append(span, span2);
-  item1.append(article, article2); 
+  item1.append(article);
 }
 
 function createHomePage() {
   const div = document.createElement('div');
   div.className = 'sun-reading-container'
-/*  */
   const h2 = Object.assign(document.createElement('h1'), { id: 'sun-reading' });
   h2.textContent ='0';
   const p = document.createElement('p');
   p.className = 'sun-light-summary';
-  /* p.innerText = 'Brigth Light'; */
   div.append(h2, p);
   const section = document.createElement('section');
   section.setAttribute('id', 'home');
-  const classNames = ['item2', 'item1'];
-  for (let i = 0; i < classNames.length; i++) {
-    const article = document.createElement('article');
-    article.setAttribute('class', classNames[i], 'item');
-    article.classList.add('item');
-    section.append(article);
-  }
+  const article1 = document.createElement('article');
+  article1.setAttribute('class', 'item1 item');
+  const article2 = document.createElement('article');
+  article2.setAttribute('class', 'item2 item');
+  section.append(article2, article1);
   main.append(div, section);  
   document.querySelector('.item2').innerHTML = `Maximum normal surface irradiance is approximately 1000 W/m&#178; at sea level on a clear day`
 
   item1Content();
+  createThresholdBtn();
 }
 
 
@@ -200,40 +202,46 @@ let led = true;
 function setLightThreshold(labelTxt, lightInMem, formID) {
   const form = document.createElement('form');
   form.setAttribute('id', formID);
-
+  form.className = 'set-irr-form';
   const label = document.createElement('label');
-  label.setAttribute('for', 'entry');
+  label.setAttribute('for', `${formID}-input`);
   label.textContent = labelTxt;
-
+  
   const input = document.createElement('input');
   input.setAttribute('type', 'number');
+  input.setAttribute('id', `${formID}-input`); 
   input.setAttribute('name', 'entry');
   input.setAttribute('min', '0');
   input.setAttribute('max', '1000');
   input.setAttribute('required', 'true');
   input.setAttribute('value', lightInMem);
-
+  
   const submitButton = document.createElement('input');
   submitButton.setAttribute('type', 'submit');
-  if (formID !== 'max-entry')
+  if (formID !== 'max-entry') {
     submitButton.setAttribute('value', 'Next');
-  else submitButton.setAttribute('value', 'Submit');
-
+    submitButton.setAttribute('id', 'submit');
+  }
+  else {
+    submitButton.setAttribute('value', 'Submit');
+    submitButton.setAttribute('id', 'submit-next');
+  }
+  
   const button = document.createElement('button');
   button.setAttribute('type','button');
   button.setAttribute('id','back');
   button.innerText = 'Back'; 
-
+  
   const backkBtn = document.createElement('button');
   backkBtn.setAttribute('id', 'back-btn');
   backkBtn.innerHTML = icons.enter;
-
+  
   if (formID !== 'max-entry')
     form.append(label, input, submitButton, backkBtn);
-  else form.append(label, input, button, submitButton, backkBtn);
-
+  else {
+    form.append(label, input, button, submitButton, backkBtn);
+  }
   document.querySelector('.item1').appendChild(form);
-  document.querySelector('#threshold').classList.add('hidden');
 }
 
 window.addEventListener('submit', (e) => {
@@ -256,7 +264,7 @@ window.addEventListener('submit', (e) => {
       lightInLocal.max = parseInt(input.value, 10);
       socket.send(lightInLocal);
       document.querySelector('#max-entry').remove();
-      document.querySelector('#threshold').classList.remove('hidden');
+      createThresholdBtn();
     }
   }
   console.log(lightInLocal);
@@ -280,6 +288,7 @@ document.querySelector('body').addEventListener('touchstart', (e) => {
   else if (target.matches('#threshold, #threshold *')) {
     console.log("Im here");
     setLightThreshold('Set minimum intensity', lightInMem.min, 'min-entry')
+    document.querySelector('#threshold').remove();
   }
   else if (target.matches('#back')) {
     document.querySelector('#max-entry').remove();
@@ -290,13 +299,12 @@ document.querySelector('body').addEventListener('touchstart', (e) => {
     const container = document.querySelector('.item1');
     const maxEntry = container.querySelector('#max-entry');
     const minEntry = container.querySelector('#min-entry');
+    createThresholdBtn();
     if (maxEntry) 
       maxEntry.remove();
     else if (minEntry) 
       minEntry.remove();
-      document.querySelector('#threshold').classList.remove('hidden');
   }
 });
-
 
 
