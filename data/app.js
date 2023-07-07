@@ -12,8 +12,6 @@ let socket = new WebSocket(websocketUrl);
 let lightInMem = { min: 0, max: 0 };
 let lightInLocal = { min: 0, max: 0 };
 
-let minnn = 0;
-
 const main = document.querySelector('main');
 const header = document.querySelector('header');
 const footer = document.querySelector('footer');
@@ -25,7 +23,11 @@ let start = false;
 let msg = null;
 
 function clientConnected() {
-  footer.firstElementChild.innerHTML = `Numbers of connected users: ${msg[1]}`;
+  if (msg[0] === 2)
+  footer.firstElementChild.innerHTML = `Only you and a user are connected to this Power Manager`;
+  else if (msg[0] > 2)  
+    footer.firstElementChild.innerHTML = `You and ${msg[0] - 1} are connected are connected to Power Manager`;
+  else footer.firstElementChild.innerHTML = 'You are connected to your Energy Manager'
 }
 
 function item1Content() {
@@ -80,7 +82,6 @@ function createHomePage() {
 
 
 //Loging Page
-
 setTimeout(() => {
   document.querySelector('#logo-anim').style.left = '28px' 
 }, 1000);
@@ -113,7 +114,7 @@ document.querySelector('#passcode').addEventListener('keyup', (e) => {
 
 function reconnect() {
   if(start) {
-    document.querySelector('#sun-reading').innerHTML = `Connection Closed`;
+    document.querySelector('#sun-reading').textContent = `Connection Closed`;
     document.querySelector('.sun-light-summary').innerHTML = `<i>Reconnecting...</i>`
   }
   setTimeout(() => {
@@ -182,12 +183,12 @@ socket.addEventListener('message', (e) => {
 
 
 // Example usage: sending a message to the server
-function sendMessage(message) {delay(500);
+/* function sendMessage(message) {delay(500);
   if (socket.readyState === WebSocket.OPEN) {
     socket.send(message);
     console.log('Sent message to server:', message);
   }
-}
+} */
 
 // Example usage: sending a message to the server
 // sendMessage('Hello from the browser!');
@@ -212,21 +213,33 @@ function setLightThreshold(labelTxt, lightInMem, formID) {
   input.setAttribute('required', 'true');
   input.setAttribute('value', lightInMem);
 
-  const submitButton = document.createElement('button');
+  const submitButton = document.createElement('input');
   submitButton.setAttribute('type', 'submit');
-  submitButton.innerHTML = icons.enter;
+  if (formID !== 'max-entry')
+    submitButton.setAttribute('value', 'Next');
+  else submitButton.setAttribute('value', 'Submit');
 
-  form.append(label, input, submitButton);
+  const button = document.createElement('button');
+  button.setAttribute('type','button');
+  button.setAttribute('id','back');
+  button.innerText = 'Back'; 
+
+  const backkBtn = document.createElement('button');
+  backkBtn.setAttribute('id', 'back-btn');
+  backkBtn.innerHTML = icons.enter;
+
+  if (formID !== 'max-entry')
+    form.append(label, input, submitButton, backkBtn);
+  else form.append(label, input, button, submitButton, backkBtn);
+
   document.querySelector('.item1').appendChild(form);
   document.querySelector('#threshold').classList.add('hidden');
 }
 
 window.addEventListener('submit', (e) => {
   e.preventDefault(); // Prevent form submission
-
   const { target } = e;
   console.log(target);
-
   // Check if the target matches a specific selector
   if (target.matches('#min-entry')) {
     const input = target.querySelector('input');
@@ -241,22 +254,15 @@ window.addEventListener('submit', (e) => {
     const input = target.querySelector('input');
     if (input) {
       lightInLocal.max = parseInt(input.value, 10);
-      document.querySelector('#min-entry').remove();
+      socket.send(lightInLocal);
+      document.querySelector('#max-entry').remove();
+      document.querySelector('#threshold').classList.remove('hidden');
     }
   }
   console.log(lightInLocal);
-
 });
 
-
-
-
-/* // for minVolt
-setLightThreshold('Set minimum intensity', lightInMem.min, 'min-entry');
-// for maxVolt
-setLightThreshold('Set minimum intensity', lightInMem.max, 'max-light'); */
-
-window.addEventListener('touchstart', (e) => {
+document.querySelector('body').addEventListener('touchstart', (e) => {
   console.log(e.target);
   const { target } = e;
   if (target === document.querySelector('.item1') && led) {
@@ -275,6 +281,22 @@ window.addEventListener('touchstart', (e) => {
     console.log("Im here");
     setLightThreshold('Set minimum intensity', lightInMem.min, 'min-entry')
   }
+  else if (target.matches('#back')) {
+    document.querySelector('#max-entry').remove();
+    setLightThreshold('Set minimum intensity', lightInLocal.min, 'min-entry');
+  }
+
+  else if (target.matches('#back-btn, #back-btn *')) {
+    const container = document.querySelector('.item1');
+    const maxEntry = container.querySelector('#max-entry');
+    const minEntry = container.querySelector('#min-entry');
+    if (maxEntry) 
+      maxEntry.remove();
+    else if (minEntry) 
+      minEntry.remove();
+      document.querySelector('#threshold').classList.remove('hidden');
+  }
 });
+
 
 
