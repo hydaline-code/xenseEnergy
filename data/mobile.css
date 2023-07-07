@@ -248,6 +248,7 @@ main {
   margin: 0 auto;
   max-width: var(--max-width);
   padding: 0 0 50px 0;
+  animation: fade-in 0.5s forwards;
 }
 
 .sun-reading-container {
@@ -388,14 +389,14 @@ footer span {
   bottom: 0;
   color: #141e30a4;
   padding: 12px 0;
+  text-align: center;
 }
 
 #threshold {
   color: #fff;
   position: absolute;
-  right: 50%;
-  transform: translateX(-50%);
-  bottom: 60px;
+  right: 24px;
+  bottom: 70px;
   right: 24px;
   overflow: hidden;
   z-index: 2;
@@ -403,8 +404,6 @@ footer span {
 
 #threshold span {
   font-size: 0.91rem;
-  margin-left: 12px;
- 
 }
 
 #threshold span:last-child {
@@ -429,6 +428,8 @@ footer span {
   padding: 24px;
   position: relative;
   height: 250px;
+  opacity: 0;
+  animation: fade-in 0.5s forwards;
 }
 
 #max-entry-input,
@@ -439,6 +440,8 @@ footer span {
   border-radius: 8px;
   width: 80%;
   background-image: linear-gradient(to bottom, #f5f5f5, #e8e8e8);
+  font-size: 18px;
+  font-weight: 500;
 }
 
 #back {
@@ -478,4 +481,13 @@ footer span {
   background-color: #fff;
   border: 1px solid #141e303d;
   color: #141e30;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0; 
+  }
+  to {
+    opacity: 1; 
+  }
 }
