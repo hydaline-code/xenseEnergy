@@ -25,7 +25,6 @@
   touch-action: manipulation;
 }
 
-
 html {
   height: 100%;
 }
@@ -249,8 +248,6 @@ main {
   color: #333;
   margin: 0 auto;
   max-width: var(--max-width);
-  padding: 0 0 50px 0;
-  animation: fade-in 0.5s forwards;
 }
 
 .sun-reading-container {
@@ -381,16 +378,33 @@ main {
 }
 
 footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+ padding: 0 24px;
+ display: flex;
+ flex-direction: column;
+ position: relative;
+ padding: 0 50px;
+}
+
+footer::after,
+footer::before {
+  content: '';
+  position: absolute;
+  bottom: 0px;
+  height: 1px;
+  width: 50%;
+  background: linear-gradient(to right, transparent, #141e3033);
+}
+footer::before {
+  left: 0;
+}
+footer::after {
+  right: 0;
+  transform: scaleX(-1); 
 }
 
 footer span {
-  position: absolute;
-  bottom: 0;
   color: #141e30a4;
-  padding: 12px 0;
+  padding: 0 0 12px 0;
   text-align: center;
 }
 
@@ -429,8 +443,6 @@ footer span {
   background-color: #fff;
   padding: 24px;
   position: relative;
-  opacity: 0;
-  animation: fade-in 0.5s forwards;
 }
 
 #max-entry div {
@@ -439,13 +451,12 @@ footer span {
   width: 100%;
   gap: 12px;
   font-size: .91rem;
-  margin-bottom: 24px;
+
 }
 #max-entry div p {
   color: #bb6855;
-  opacity: 0;
-  animation: fade-in 1s forwards;
 }
+
 #max-entry div h2 {
   text-align:left;
   font-weight: 500;
@@ -456,8 +467,9 @@ footer span {
 
 #max-entry div h2::before {
   content: 'Minimum: ';
-  font-size: 1rem;
+  font-size: .9rem;
    color: #141e30a4;
+   font-weight: 400;
 }
 
 #max-entry-input,
@@ -511,14 +523,4 @@ footer span {
   background-color: #fff;
   border: 1px solid #141e303d;
   color: #141e30;
-  /* color: #bb6855' */
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0; 
-  }
-  to {
-    opacity: 1; 
-  }
 }

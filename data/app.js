@@ -119,8 +119,9 @@ document.querySelector('#passcode').addEventListener('keyup', (e) => {
 
 function reconnect() {
   if(start) {
-    document.querySelector('#sun-reading').textContent = `Connection Closed`;
+    document.querySelector('#sun-reading').textContent = `Connection lost`;
     document.querySelector('.sun-light-summary').innerHTML = `<i>Reconnecting...</i>`
+    document.querySelector('footer span').innerHTML = '';
   }
   setTimeout(() => {
     socket = new WebSocket(websocketUrl);
@@ -156,6 +157,10 @@ socket.addEventListener('message', (e) => {
     for (let i = 0; i < threshold.length; i++) {
       console.log(`Voltage in Memory ${threshold[i]}`);
       serverSettings.threshold[i] = threshold[i];
+    }
+    if(start) {
+      document.querySelector('.nrTxt').innerHTML = `Power activation for the connected Energy manager is between: <br> 
+      ${serverSettings.threshold[0]} W/m&#178; and ${serverSettings.threshold[1]} W/m&#178;`;
     }
   }
 
@@ -275,7 +280,8 @@ window.addEventListener('submit', (e) => {
       const valueInBase10 = parseInt(input.value, 10);
       if (valueInBase10 > clientSettings.threshold[0]) {
         clientSettings.threshold[1] = valueInBase10;
-        socket.send(clientSettings);
+        const clientSettingsJSON = JSON.stringify(clientSettings); // Convert object to JSON string
+        socket.send(clientSettingsJSON);
         document.querySelector('#max-entry').remove();
         createThresholdBtn();
         sucessSubmit = true;

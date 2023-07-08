@@ -1,5 +1,7 @@
 #include "Config.h"
 
+bool power = true;
+
 // Define the EEPROM address to store the maximum voltage
 const u_int8_t max_voltage_eeprom = 0; 
 
@@ -41,4 +43,21 @@ double checkIrradiance(const uint8_t pin) {
 
 void blink() {
     digitalWrite(2, HIGH);
+}
+
+
+void switchPower(u_int8_t powerPin, u_int8_t sensorPin) {
+    double min;
+    double max;
+    EEPROM.get(MIN_VOLT_ADDR, min);
+    EEPROM.get(MAX_VOLT_ADDR, max);
+
+    if (irradiance >= min && irradiance <= max && power) {
+        digitalWrite(powerPin, HIGH);
+        power = false;
+    } 
+    else {
+        digitalWrite(powerPin, LOW);
+        power = true;
+    }
 }

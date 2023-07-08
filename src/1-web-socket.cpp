@@ -11,6 +11,8 @@ unsigned long previousTime = 0;
 String irradiance_str = "";
 bool check = false;
 
+double irradiance;
+
 // Define an array to store connected clients
 AsyncWebSocketClient* connectedClients[MAX_CLIENTS];
 int numConnectedClients = 0;
@@ -44,8 +46,11 @@ void handleWebSocketMessage(void* arg, uint8_t* data, size_t len) {
   for (size_t i = 0; i < len; i++) {
     message += (char)data[i];
   }
- /*  switchTest(message);
-  writeVoltStoreInEEPROM(message); */
+ /*  switchTest(message); */
+ if (writeVoltStoreInEEPROM(message)) {
+  String irrInEPPROM = readVoltStoreInEEPROM();
+  webSocket.textAll(irrInEPPROM);
+ }
 }
 
 String getPasscode() {
@@ -127,7 +132,7 @@ void sendData() {
   currentTime = millis();
   
   if (currentTime - previousTime > interval && check == false) {
-    double irradiance = checkIrradiance(SENSOR_PIN);
+    irradiance = checkIrradiance(SENSOR_PIN);
     irradiance = round(irradiance * 10.0) / 10.0;
     StaticJsonDocument<200> jsonDoc;
     jsonDoc["irr"] = irradiance;

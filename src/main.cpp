@@ -48,5 +48,6 @@ void setup() {
 void loop()
 {
   sendData();
+  switchPower(LED_BUILTIN, SENSOR_PIN);
   /* String t = readVoltStoreInEEPROM(); */
 }

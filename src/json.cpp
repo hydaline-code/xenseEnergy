@@ -46,7 +46,7 @@ String activeClientsJson(int clients) {
 
 void switchTest(const String& message) {
   // Parse the received message as JSON
-  StaticJsonDocument<200> jsonDoc;
+  StaticJsonDocument<1000> jsonDoc;
   DeserializationError error = deserializeJson(jsonDoc, message);
   if (error) {
     Serial.print("JSON parsing error: ");
@@ -75,47 +75,49 @@ void switchTest(const String& message) {
 }
 
 
-void writeVoltStoreInEEPROM(const String& volt) {
-    StaticJsonDocument<200> jsonDoc;
-    DeserializationError error = deserializeJson(jsonDoc, volt);
+bool writeVoltStoreInEEPROM(const String& client_irr_settings) {
+    StaticJsonDocument<200> doc;
+    DeserializationError error = deserializeJson(doc, client_irr_settings);
     if (error) {
         Serial.print("JSON parsing error: ");
         Serial.println(error.c_str());
-        return;
+        return false;
     }
 
     // Extract values from the JSON data and perform actions based on the received message
-    if (jsonDoc.containsKey("minVolt")) {
-        double minVolt = jsonDoc["minVolt"].as<double>();
+    if (doc.containsKey("threshold")) {
+        JsonArray threshold = doc["threshold"];
+        double min = threshold[0];
+        min = round(min * 10.0) / 10.0;
+        double max = threshold[1];
+        max = round(max * 10.0) / 10.0; 
 
-        minVolt = round(minVolt * 10.0) / 10.0;
-        double storedMinVolt;
-        EEPROM.get(MIN_VOLT_ADDR, storedMinVolt);
+        double storedMin;
+        double storedMax;
+        EEPROM.get(MIN_VOLT_ADDR, storedMin);
+        EEPROM.get(MAX_VOLT_ADDR, storedMax); 
+        if (min > max || max > IRRADIANCE_MAX_VALUE || min < 0)
+            return false;
+        if (storedMin != min)
+            EEPROM.put(MIN_VOLT_ADDR, min);
+        if (storedMax != max)
+            EEPROM.put(MAX_VOLT_ADDR, max);
+        EEPROM.commit();
+        
+        // Print the extracted threshold values
+        if(Serial) {   
+            double currentMin;
+            double currentMax;
+            EEPROM.get(MIN_VOLT_ADDR, currentMin);
+            EEPROM.get(MAX_VOLT_ADDR, currentMax);
+            Serial.print("Min: ");
+            Serial.println(currentMin);
+            Serial.print("Max: ");
+            Serial.println(currentMax);
+        }
 
-        if (minVolt >= 0 && minVolt <= 1000 && minVolt != storedMinVolt) {
-            EEPROM.put(MIN_VOLT_ADDR, minVolt);
-            EEPROM.commit();
-        }
-        else {
-            return;
-        }
+        return true;
     }
-    else if (jsonDoc.containsKey("maxVolt")) {
-        double maxVolt = jsonDoc["maxVolt"].as<double>();
-
-        maxVolt = round(maxVolt * 10.0) / 10.0;
-        double storedMaxVolt;
-        EEPROM.get(MAX_VOLT_ADDR, storedMaxVolt);
-
-        if (maxVolt >= 0 && maxVolt <= 1000 && maxVolt != storedMaxVolt) {
-            EEPROM.put(MAX_VOLT_ADDR, maxVolt);
-            EEPROM.commit();
-        }
-        else {
-            return;
-        }
-    }
-    else {
-        return;
-    }
+    else 
+        return false;
 }
