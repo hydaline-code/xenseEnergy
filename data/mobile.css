@@ -74,11 +74,12 @@ body {
   padding: 10px 0;
   font-size: 16px;
   color: #fff;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   border: none;
   border-bottom: 1px solid #03e9f4;;
   outline: none;
   background: transparent;
+  text-align: center;
 }
 
 .login-box .user-box label {
@@ -94,10 +95,11 @@ body {
 
 .login-box .user-box input:focus ~ label,
 .login-box .user-box input:valid ~ label {
-  top: 33px;
+  top: 40px;
   left: 0;
   color: #03e9f4;
   font-size: 12px;
+  margin-bottom: 100px;
 }
 
 .login-box form a {
@@ -427,9 +429,35 @@ footer span {
   background-color: #fff;
   padding: 24px;
   position: relative;
-  height: 250px;
   opacity: 0;
   animation: fade-in 0.5s forwards;
+}
+
+#max-entry div {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 12px;
+  font-size: .91rem;
+  margin-bottom: 48px;
+}
+#max-entry div p {
+  color: #bb6855;
+  opacity: 0;
+  animation: fade-in 1s forwards;
+}
+#max-entry div h2 {
+  text-align:left;
+  font-weight: 500;
+  color: #333;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+#max-entry div h2::before {
+  content: 'Minimum: ';
+  font-size: 1rem;
+   color: #141e30a4;
 }
 
 #max-entry-input,
@@ -443,6 +471,7 @@ footer span {
   font-size: 18px;
   font-weight: 500;
 }
+
 
 #back {
   position: absolute;
@@ -468,6 +497,7 @@ footer span {
   border: none;
   background-color: transparent;
   margin-top: 90px;
+  overflow: hidden;
 }
 
 #back-btn svg {
@@ -481,6 +511,7 @@ footer span {
   background-color: #fff;
   border: 1px solid #141e303d;
   color: #141e30;
+  /* color: #bb6855' */
 }
 
 @keyframes fade-in {

@@ -13,8 +13,8 @@ let socket = new WebSocket(websocketUrl);;
   
 });
  */
-let lightInMem = { min: 0, max: 0 };
-let lightInLocal = { min: 0, max: 0 };
+let serverSettings = { threshold: [] };
+let clientSettings = { threshold: [] };
 
 const main = document.querySelector('main');
 const header = document.querySelector('header');
@@ -23,6 +23,7 @@ const footer = document.querySelector('footer');
 let pass = '';
 let start = false;
 let msg = null;
+let sucessSubmit = true;
 
 function clientConnected() {
   if (msg[0] === 2)
@@ -90,27 +91,29 @@ setTimeout(() => {
 
 document.querySelector('#passcode').addEventListener('keyup', (e) => {
   const { target } = e;
-  const passLebel = document.querySelector('#pass-lebel');
+  const passLabel = document.querySelector('#pass-lebel');
   if (target.value.length >= 4) {
-    if (target.value !== pass) {
-      passLebel.innerHTML = 'Passcode Invalid';
-      passLebel.style.color = '#f28500';
+    if (pass < 1) {
+      passLabel.innerHTML = 'Your device is not connected to your Energy Manager. Check your WiFi and refresh page';
+      passLabel.style.color = '#f28500';
+    }
+    else if (target.value !== pass) {
+      passLabel.innerHTML = 'Passcode Invalid';
+      passLabel.style.color = '#f28500';
     }
     else {
       document.querySelector('body').classList.remove('body');
       document.querySelector('.login-box').remove();
-/*       html.classList.add('html');
-      html.classList.add('body'); */
       createHomePage();
       clientConnected();
       document.querySelector('.nrTxt').innerHTML = `Power activation for the connected Energy manager is between: <br> 
-      ${lightInMem.min} W/m&#178; and ${lightInMem.max} W/m&#178;`;
+      ${serverSettings.threshold[0]} W/m&#178; and ${serverSettings.threshold[1]} W/m&#178;`;
       start = true;
     }
   }
   else {
-    passLebel.innerHTML = 'Enter Passcode';
-    passLebel.style.color = '#03e9f4';
+    passLabel.innerHTML = 'Enter Passcode';
+    passLabel.style.color = '#03e9f4';
   }
 });
 
@@ -149,11 +152,11 @@ socket.addEventListener('message', (e) => {
   const jsonData = JSON.parse(data);
 
   if (jsonData.hasOwnProperty("voltageInMemory")) {
-    const voltageInMemory = jsonData.voltageInMemory;
-    console.log(`Voltage in Memory ${voltageInMemory[0]}`);
-    console.log(`Voltage in Memory ${voltageInMemory[1]}`);
-    lightInMem.min = voltageInMemory[0];
-    lightInMem.max = voltageInMemory[1];
+    const threshold = jsonData.voltageInMemory;
+    for (let i = 0; i < threshold.length; i++) {
+      console.log(`Voltage in Memory ${threshold[i]}`);
+      serverSettings.threshold[i] = threshold[i];
+    }
   }
 
   if (jsonData.hasOwnProperty("passCode")) {
@@ -253,21 +256,42 @@ window.addEventListener('submit', (e) => {
     const input = target.querySelector('input');
     if (input) {
       // Extract the input value
-      lightInLocal.min = parseInt(input.value, 10);
+      clientSettings.threshold[0] = parseInt(input.value, 10);
       document.querySelector('#min-entry').remove();
-      setLightThreshold('Set maximum intensity', lightInMem.max, 'max-entry');
+      setLightThreshold('Set maximum intensity', serverSettings.threshold[1], 'max-entry');
+      const form = document.querySelector('#max-entry');
+      const firstChild = document.querySelector('#max-entry label')
+      const h2 = document.createElement('h2');
+      const div = document.createElement('div');
+      div.setAttribute('id', 'error-msg');
+      div.appendChild(h2);
+      h2.innerHTML = `${clientSettings.threshold[0]} W/m&#178;`;
+      form.insertBefore(div, firstChild);
     }
   }
   else if (target.matches('#max-entry')) {
     const input = target.querySelector('input');
     if (input) {
-      lightInLocal.max = parseInt(input.value, 10);
-      socket.send(lightInLocal);
-      document.querySelector('#max-entry').remove();
-      createThresholdBtn();
+      const valueInBase10 = parseInt(input.value, 10);
+      if (valueInBase10 > clientSettings.threshold[0]) {
+        clientSettings.threshold[1] = valueInBase10;
+        socket.send(clientSettings);
+        document.querySelector('#max-entry').remove();
+        createThresholdBtn();
+        sucessSubmit = true;
+        // create successful display
+      }
+      else {
+          if(sucessSubmit) {
+          const errorMsg = document.createElement('p');
+          errorMsg.innerHTML = `Minimum can't be greater than maximum irradiance!`;
+          document.querySelector('#error-msg').appendChild(errorMsg);
+          sucessSubmit = false;
+        }
+      }
     }
   }
-  console.log(lightInLocal);
+  console.log(clientSettings);
 });
 
 document.querySelector('body').addEventListener('touchstart', (e) => {
@@ -287,12 +311,12 @@ document.querySelector('body').addEventListener('touchstart', (e) => {
   }
   else if (target.matches('#threshold, #threshold *')) {
     console.log("Im here");
-    setLightThreshold('Set minimum intensity', lightInMem.min, 'min-entry')
+    setLightThreshold('Set minimum intensity', serverSettings.threshold[0], 'min-entry')
     document.querySelector('#threshold').remove();
   }
   else if (target.matches('#back')) {
     document.querySelector('#max-entry').remove();
-    setLightThreshold('Set minimum intensity', lightInLocal.min, 'min-entry');
+    setLightThreshold('Set minimum intensity', clientSettings.threshold[0], 'min-entry');
   }
 
   else if (target.matches('#back-btn, #back-btn *')) {
