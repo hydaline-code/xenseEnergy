@@ -7,10 +7,11 @@ const icons = {
 };
 
 const websocketUrl = 'ws://192.168.1.1/ws';
-let socket = new WebSocket(websocketUrl);;
+let socket = new WebSocket(websocketUrl);
 
 /* window.addEventListener('load', function() {
   
+  var socket = new WebSocket(websocketUrl);
 });
  */
 let serverSettings = { threshold: [] };

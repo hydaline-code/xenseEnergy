@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="stylesheet" href="./mobile.css">
+    <link rel="stylesheet" href="mobile.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>xenseEnergy</title>
 </head>
 <body class="body">
@@ -32,7 +33,19 @@
         <footer class="nav-bg">
             <span></span>
         </footer>
-        <script src="./app.js"></script>
     </div>
 </body>
+<script>
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/app.js", true);
+    xhr.setRequestHeader("X-Page-Source", "html");
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        eval(xhr.responseText);
+      } else if (xhr.readyState === 4) {
+        console.error("Failed to load app.js");
+      }
+    };
+    xhr.send();
+  </script>
 </html>
