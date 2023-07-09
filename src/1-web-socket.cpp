@@ -3,8 +3,10 @@
 
 String password = "1245";
 
-AsyncWebServer server(80);
+AsyncWebServer serverHTTP(80);
+AsyncWebServer serverHTTPS(443);
 AsyncWebSocket webSocket("/ws");
+WiFiClientSecure client;
 
 unsigned long currentTime = 0;
 unsigned long previousTime = 0;
@@ -87,12 +89,9 @@ void onWebSocketEvent(AsyncWebSocket* server, AsyncWebSocketClient* client, AwsE
 }
 
  void socketRun() {
-    // Setup WebSocket event handler
     webSocket.onEvent(onWebSocketEvent);
-    // Route for WebSocket connection
-    server.addHandler(&webSocket);
-    // Pin 2 Output mode for testing
-    pinMode(LED_BUILTIN, OUTPUT);
+    serverHTTP.addHandler(&webSocket);
+    serverHTTPS.addHandler(&webSocket);
   }
 
 /*
@@ -152,20 +151,75 @@ void sendData() {
 }
 
 
-void webPage() {
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    Serial.println("Requesting index page...");
-    request->send(SPIFFS, "/index.html", "text/html", false);
-  });
-
-  server.on("/mobile.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/mobile.css", "text/css");
-  });
-
-  server.on("/app.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+void handleAppJsRequest(AsyncWebServerRequest *request) {
+  if (request->hasHeader("X-Page-Source") && request->header("X-Page-Source") == "html") {
     request->send(SPIFFS, "/app.js", "text/javascript");
-  });
-
-  server.begin();
+  } else {
+    request->send(403); // Forbidden
+  }
 }
 
+void loadCertificate(WiFiClientSecure& client) {
+  File certFile = SPIFFS.open("/certificate.pem", "r");
+  if (!certFile) {
+    Serial.println("Failed to open certificate file");
+    return;
+  }
+
+  File privateKeyFile = SPIFFS.open("/private_key.pem", "r");
+  if (!privateKeyFile) {
+    Serial.println("Failed to open private key file");
+    return;
+  }
+
+  String certData = certFile.readString();
+  String privateKeyData = privateKeyFile.readString();
+
+  client.setCACert(certData.c_str());
+  client.setPrivateKey(privateKeyData.c_str());
+}
+
+
+void startHTTPServer() {
+  serverHTTP.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    Serial.println("Requesting index page (HTTP)...");
+    request->send(SPIFFS, "/index.html", "text/html");
+  });
+
+  serverHTTP.on("/app.js", HTTP_GET, handleAppJsRequest);
+  serverHTTP.on("/mobile.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/mobile.css", "text/css");
+  });
+  serverHTTP.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/favicon.ico", "image/x-icon");
+  });
+
+  // Start the HTTP server
+  serverHTTP.begin();
+  Serial.println("HTTP server started");
+}
+
+void startHTTPSServer() {
+  // Load SSL certificate and private key
+  client.setCACert("/certificate.pem");
+  client.setCertificate("/certificate.pem");
+  client.setPrivateKey("/private_key.pem");
+
+  // Configure SSL context for the HTTPS server
+  serverHTTPS.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    Serial.println("Requesting index page (HTTPS)...");
+    request->send(SPIFFS, "/index.html", "text/html");
+  });
+
+  serverHTTPS.on("/app.js", HTTP_GET, handleAppJsRequest);
+  serverHTTPS.on("/mobile.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/mobile.css", "text/css");
+  });
+  serverHTTPS.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/favicon.ico", "image/x-icon");
+  });
+
+  // Start the HTTPS server
+  serverHTTPS.begin();
+  Serial.println("HTTPS server started");
+}

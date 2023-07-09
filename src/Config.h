@@ -1,13 +1,15 @@
 #include <Arduino.h>
 #include <EEPROM.h>
-/* #include <ESPAsyncWebServer.h> */
+#include <ESPAsyncWebServer.h>
 #include "AsyncJson.h"
 #include "ArduinoJson.h"
 #include "SPIFFS.h"
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPmDNS.h>
-#include <AsyncWebSocket.h>
+#include <WiFiClientSecure.h>
+
+/* #include <AsyncWebSocket.h> */
 
 #define SSID "xense"
 #define PASSWORD "12345678"
@@ -25,7 +27,8 @@ double checkIrradiance(const u_int8_t pin);
 void blink();
 void socketRun();
 void sendData();
-void webPage();
+void startHTTPSServer();
+void startHTTPServer();
 String readVoltStoreInEEPROM();
 bool writeVoltStoreInEEPROM(const String& client_irr_settings);
 void switchTest(const String& message);
