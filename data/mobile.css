@@ -498,6 +498,19 @@ main {
   font-weight: 500;
 }
 
+.form-submit {
+  height: 200px;
+  color: black;
+}
+
+#min-entry {
+  height: 250px;
+}
+
+#max-entry {
+  height: 300px;
+}
+
 #back {
   position: absolute;
   left: 80px;
@@ -520,8 +533,11 @@ main {
 #back-btn {
   border: none;
   background-color: transparent;
-  margin-top: 90px;
+  position: absolute;
+  bottom: 24px;
   overflow: hidden;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 #submit {

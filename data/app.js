@@ -11,9 +11,7 @@ let socket = new WebSocket(websocketUrl);
 
 const serverSettings = { threshold: [] };
 const clientSettings = { threshold: [] };
-const home = document.querySelector('#home');
 const main = document.querySelector('main');
-const footer = document.querySelector('footer');
 const irrUnit = '<span class = \'small-txt\'>W/m&#178;</span>';
 let led = true;
 let pass = '';
@@ -21,6 +19,7 @@ let start = false;
 let msg = null;
 let sucessSubmit = true;
 let passkey = true;
+const green = '#3aa945';
 
 function clientConnected() {
   let content;
@@ -74,11 +73,14 @@ function createHomePage() {
   div.append(h2, p);
   const section = document.createElement('section');
   section.id = 'home';
+  const article = document.createElement('article');
+  article.className = 'item';
+  article.id = 'item';
   const article1 = document.createElement('article');
   article1.className = 'item1 item';
   const article2 = document.createElement('article');
   article2.className = 'item2 item';
-  section.append(article2, article1);
+  section.append(article2, article1, article);
   main.append(div, section);
   document.querySelector('.item2').innerHTML = 'Maximum normal surface irradiance is approximately 1000 W/m&#178; at sea level on a clear day';
 
@@ -218,23 +220,44 @@ function setLightThreshold(labelTxt, lightInMem, formID) {
   if (formID !== 'max-entry') { form.append(label, input, submitButton, backBtn); } else {
     form.append(label, input, button, submitButton, backBtn);
   }
-  document.querySelector('.item1').appendChild(form);
+  document.querySelector('#item').appendChild(form);
+}
+
+async function checkSettingsMatch(serverSettings, clientSettings) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(
+        serverSettings.threshold[0] === clientSettings.threshold[0]
+        && serverSettings.threshold[1] === clientSettings.threshold[1],
+      );
+    }, 1000);
+  });
 }
 
 function formDeliveredMessage() {
+  const button = document.createElement('button');
+  button.innerHTML = icons.enter;
+  button.id = 'back-btn';
   const article = document.createElement('article');
   article.className = 'form-submit';
   const msg = document.createElement('h2');
-  console.log(`server: ${serverSettings.threshold[0]} ${serverSettings.threshold[1]}`);
-  console.log(`server: ${clientSettings.threshold[0]} ${clientSettings.threshold[1]}`);
-  msg.innerHTML = (
-    clientSettings.threshold[0] === serverSettings.threshold[0]
-    && clientSettings.threshold[1] === serverSettings.threshold[1]
-  )
-    ? 'Energy Manager was updated!'
-    : 'Error';
-  article.append(msg);
-  document.querySelector('#home').append(article);
+  msg.innerHTML = 'Updating...';
+  article.append(msg, button);
+  document.querySelector('#item').append(article);
+  (async () => {
+    const settingsMatch = await checkSettingsMatch(serverSettings, clientSettings);
+    console.log(settingsMatch);
+    if (clientSettings && serverSettings) {
+      msg.innerHTML = 'Energy Manager was updated!';
+      msg.style.color = green;
+      const p = document.createElement('p');
+      p.innerHTML = `Solar threshold is now`;
+      article.append(p);
+    } else {
+      msg.innerHTML = 'Error';
+      msg.style.color = 'red';
+    }
+  })();
 }
 
 window.addEventListener('submit', (e) => {
@@ -264,10 +287,10 @@ window.addEventListener('submit', (e) => {
         const clientSettingsJSON = JSON.stringify(clientSettings);
         socket.send(clientSettingsJSON);
         document.querySelector('#max-entry').remove();
-        createThresholdBtn();
         sucessSubmit = true;
-        formDeliveredMessage();
+
         // create successful display ///////////////////////////////
+        formDeliveredMessage();
       } else if (sucessSubmit) {
         const errorMsg = document.createElement('p');
         errorMsg.innerHTML = 'Minimum can\'t be greater than maximum irradiance!';
@@ -297,10 +320,9 @@ document.querySelector('body').addEventListener('touchstart', (e) => {
     document.querySelector('#max-entry').remove();
     setLightThreshold('Set minimum solar', clientSettings.threshold[0], 'min-entry');
   } else if (target.matches('#back-btn, #back-btn *')) {
-    const container = document.querySelector('.item1');
-    const maxEntry = container.querySelector('#max-entry');
-    const minEntry = container.querySelector('#min-entry');
+    const item = document.querySelector('#item');
+    while (item.firstChild) { item.removeChild(item.firstChild); }
+
     createThresholdBtn();
-    if (maxEntry) { maxEntry.remove(); } else if (minEntry) { minEntry.remove(); }
   }
 });
