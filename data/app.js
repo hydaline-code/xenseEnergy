@@ -3,6 +3,7 @@ const icons = {
   enter: `<svg width="34" height="27" viewBox="0 0 34 27" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M19.0401 0.986284C19.4794 0.547044 20.0753 0.300293 20.6965 0.300293C21.3178 0.300293 21.9136 0.547044 22.353 0.986284L32.8964 11.5297C33.3356 11.969 33.5824 12.5649 33.5824 13.1862C33.5824 13.8074 33.3356 14.4033 32.8964 14.8426L22.353 25.386C21.9111 25.8128 21.3193 26.049 20.705 26.0436C20.0907 26.0383 19.503 25.7919 19.0686 25.3575C18.6342 24.9231 18.3878 24.3354 18.3824 23.7211C18.3771 23.1068 18.6133 22.515 19.0401 22.0731L25.3825 15.5291H3.12423C2.50283 15.5291 1.90688 15.2823 1.46749 14.8429C1.0281 14.4035 0.78125 13.8076 0.78125 13.1862C0.78125 12.5648 1.0281 11.9688 1.46749 11.5294C1.90688 11.09 2.50283 10.8432 3.12423 10.8432H25.3825L19.0401 4.29925C18.6008 3.85988 18.3541 3.26404 18.3541 2.64277C18.3541 2.02149 18.6008 1.42566 19.0401 0.986284Z" fill="#3AA945"/>
     </svg>`,
+  settings: '<svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48"><path d="m388-80-20-126q-19-7-40-19t-37-25l-118 54-93-164 108-79q-2-9-2.5-20.5T185-480q0-9 .5-20.5T188-521L80-600l93-164 118 54q16-13 37-25t40-18l20-127h184l20 126q19 7 40.5 18.5T669-710l118-54 93 164-108 77q2 10 2.5 21.5t.5 21.5q0 10-.5 21t-2.5 21l108 78-93 164-118-54q-16 13-36.5 25.5T592-206L572-80H388Zm92-270q54 0 92-38t38-92q0-54-38-92t-92-38q-54 0-92 38t-38 92q0 54 38 92t92 38Zm0-60q-29 0-49.5-20.5T410-480q0-29 20.5-49.5T480-550q29 0 49.5 20.5T550-480q0 29-20.5 49.5T480-410Zm0-70Zm-44 340h88l14-112q33-8 62.5-25t53.5-41l106 46 40-72-94-69q4-17 6.5-33.5T715-480q0-17-2-33.5t-7-33.5l94-69-40-72-106 46q-23-26-52-43.5T538-708l-14-112h-88l-14 112q-34 7-63.5 24T306-642l-106-46-40 72 94 69q-4 17-6.5 33.5T245-480q0 17 2.5 33.5T254-413l-94 69 40 72 106-46q24 24 53.5 41t62.5 25l14 112Z"/></svg>',
 };
 
 const websocketUrl = 'ws://192.168.1.1/ws';
@@ -10,9 +11,10 @@ let socket = new WebSocket(websocketUrl);
 
 const serverSettings = { threshold: [] };
 const clientSettings = { threshold: [] };
-
+const home = document.querySelector('#home');
 const main = document.querySelector('main');
 const footer = document.querySelector('footer');
+const irrUnit = '<span class = \'small-txt\'>W/m&#178;</span>';
 let led = true;
 let pass = '';
 let start = false;
@@ -21,12 +23,22 @@ let sucessSubmit = true;
 let passkey = true;
 
 function clientConnected() {
-  if (msg[0] === 2) { footer.firstElementChild.innerHTML = 'Only you and a user are connected to this Power Manager'; } else if (msg[0] > 2) { footer.firstElementChild.innerHTML = `You and ${msg[0] - 1} are connected are connected to Power Manager`; } else footer.firstElementChild.innerHTML = 'You are connected to your Energy Manager';
+  let content;
+  if (msg[0] === 2) { content = 'Only you and a user are connected to this Power Manager'; } else if
+  (msg[0] > 2) { content = `You and ${msg[0] - 1} are connected are connected to Power Manager`; } else { content = 'You are connected to your Energy Manager'; }
+  if (main.querySelector('#no-clients')) {
+    main.querySelector('#no-clients').textContent = content;
+  } else {
+    const container = document.createElement('p');
+    container.id = 'no-clients';
+    container.textContent = content;
+    main.appendChild(container);
+  }
 }
 
 function createThresholdBtn() {
   const article2 = document.createElement('article');
-  article2.setAttribute('id', 'threshold');
+  article2.id = 'threshold';
   const span = document.createElement('span');
   const span2 = document.createElement('span');
   span.innerHTML = icons.enter;
@@ -61,11 +73,11 @@ function createHomePage() {
   p.className = 'sun-light-summary';
   div.append(h2, p);
   const section = document.createElement('section');
-  section.setAttribute('id', 'home');
+  section.id = 'home';
   const article1 = document.createElement('article');
-  article1.setAttribute('class', 'item1 item');
+  article1.className = 'item1 item';
   const article2 = document.createElement('article');
-  article2.setAttribute('class', 'item2 item');
+  article2.className = 'item2 item';
   section.append(article2, article1);
   main.append(div, section);
   document.querySelector('.item2').innerHTML = 'Maximum normal surface irradiance is approximately 1000 W/m&#178; at sea level on a clear day';
@@ -95,7 +107,7 @@ document.querySelector('#passcode').addEventListener('keyup', (e) => {
       createHomePage();
       clientConnected();
       document.querySelector('.nrTxt').innerHTML = `Power activation for the connected Energy manager is between: <br> 
-        ${serverSettings.threshold[0]} W/m&#178; and ${serverSettings.threshold[1]} W/m&#178;`;
+        ${serverSettings.threshold[0]} ${irrUnit} and ${serverSettings.threshold[1]} ${irrUnit}`;
       start = true;
     }
   } else {
@@ -139,7 +151,7 @@ socket.addEventListener('message', (e) => {
     }
     if (start) {
       document.querySelector('.nrTxt').innerHTML = `Power activation for the connected Energy manager is between: <br> 
-        ${serverSettings.threshold[0]} W/m&#178; and ${serverSettings.threshold[1]} W/m&#178;`;
+        ${serverSettings.threshold[0]} ${irrUnit} and ${serverSettings.threshold[1]} ${irrUnit}`;
     }
   }
 
@@ -154,7 +166,7 @@ socket.addEventListener('message', (e) => {
   if (Object.prototype.hasOwnProperty.call(jsonData, 'irr')) {
     if (start) {
       const irradiance = jsonData.irr;
-      document.querySelector('#sun-reading').innerHTML = `${irradiance} W/m&#178;`;
+      document.querySelector('#sun-reading').innerHTML = `${irradiance} ${irrUnit}`;
       document.querySelector('.sun-light-summary').innerHTML = irradiance > 970 ? 'Bright Light' : 'Low light';
     }
   }
@@ -169,44 +181,60 @@ socket.addEventListener('message', (e) => {
 
 function setLightThreshold(labelTxt, lightInMem, formID) {
   const form = document.createElement('form');
-  form.setAttribute('id', formID);
+  form.id = formID;
   form.className = 'set-irr-form';
   const label = document.createElement('label');
-  label.setAttribute('for', `${formID}-input`);
+  label.for = `${formID}-input`;
   label.textContent = labelTxt;
 
   const input = document.createElement('input');
-  input.setAttribute('type', 'number');
-  input.setAttribute('id', `${formID}-input`);
-  input.setAttribute('name', 'entry');
-  input.setAttribute('min', '0');
-  input.setAttribute('max', '1000');
-  input.setAttribute('required', 'true');
-  input.setAttribute('value', lightInMem);
+  input.type = 'number';
+  input.id = `${formID}-input`;
+  input.name = 'entry';
+  input.min = '0';
+  input.max = '1000';
+  input.required = true;
+  input.value = lightInMem;
 
   const submitButton = document.createElement('input');
-  submitButton.setAttribute('type', 'submit');
+  submitButton.type = 'submit';
   if (formID !== 'max-entry') {
-    submitButton.setAttribute('value', 'Next');
-    submitButton.setAttribute('id', 'submit');
+    submitButton.value = 'Next';
+    submitButton.id = 'submit';
   } else {
-    submitButton.setAttribute('value', 'Submit');
-    submitButton.setAttribute('id', 'submit-next');
+    submitButton.value = 'Submit';
+    submitButton.id = 'submit-next';
   }
 
   const button = document.createElement('button');
-  button.setAttribute('type', 'button');
-  button.setAttribute('id', 'back');
+  button.type = 'button';
+  button.id = 'back';
   button.innerText = 'Back';
 
-  const backkBtn = document.createElement('button');
-  backkBtn.setAttribute('id', 'back-btn');
-  backkBtn.innerHTML = icons.enter;
+  const backBtn = document.createElement('button');
+  backBtn.id = 'back-btn';
+  backBtn.innerHTML = icons.enter;
 
-  if (formID !== 'max-entry') { form.append(label, input, submitButton, backkBtn); } else {
-    form.append(label, input, button, submitButton, backkBtn);
+  if (formID !== 'max-entry') { form.append(label, input, submitButton, backBtn); } else {
+    form.append(label, input, button, submitButton, backBtn);
   }
   document.querySelector('.item1').appendChild(form);
+}
+
+function formDeliveredMessage() {
+  const article = document.createElement('article');
+  article.className = 'form-submit';
+  const msg = document.createElement('h2');
+  console.log(`server: ${serverSettings.threshold[0]} ${serverSettings.threshold[1]}`);
+  console.log(`server: ${clientSettings.threshold[0]} ${clientSettings.threshold[1]}`);
+  msg.innerHTML = (
+    clientSettings.threshold[0] === serverSettings.threshold[0]
+    && clientSettings.threshold[1] === serverSettings.threshold[1]
+  )
+    ? 'Energy Manager was updated!'
+    : 'Error';
+  article.append(msg);
+  document.querySelector('#home').append(article);
 }
 
 window.addEventListener('submit', (e) => {
@@ -222,9 +250,9 @@ window.addEventListener('submit', (e) => {
       const firstChild = document.querySelector('#max-entry label');
       const h2 = document.createElement('h2');
       const div = document.createElement('div');
-      div.setAttribute('id', 'error-msg');
+      div.id = 'error-msg';
       div.appendChild(h2);
-      h2.innerHTML = `${clientSettings.threshold[0]} W/m&#178;`;
+      h2.innerHTML = `${clientSettings.threshold[0]} ${irrUnit}`;
       form.insertBefore(div, firstChild);
     }
   } else if (target.matches('#max-entry')) {
@@ -238,6 +266,7 @@ window.addEventListener('submit', (e) => {
         document.querySelector('#max-entry').remove();
         createThresholdBtn();
         sucessSubmit = true;
+        formDeliveredMessage();
         // create successful display ///////////////////////////////
       } else if (sucessSubmit) {
         const errorMsg = document.createElement('p');
@@ -262,11 +291,11 @@ document.querySelector('body').addEventListener('touchstart', (e) => {
     socket.send(jsonString);
     led = true;
   } else if (target.matches('#threshold, #threshold *')) {
-    setLightThreshold('Set minimum intensity', serverSettings.threshold[0], 'min-entry');
+    setLightThreshold('Set minimum solar', serverSettings.threshold[0], 'min-entry');
     document.querySelector('#threshold').remove();
   } else if (target.matches('#back')) {
     document.querySelector('#max-entry').remove();
-    setLightThreshold('Set minimum intensity', clientSettings.threshold[0], 'min-entry');
+    setLightThreshold('Set minimum solar', clientSettings.threshold[0], 'min-entry');
   } else if (target.matches('#back-btn, #back-btn *')) {
     const container = document.querySelector('.item1');
     const maxEntry = container.querySelector('#max-entry');
