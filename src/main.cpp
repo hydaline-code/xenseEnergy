@@ -1,15 +1,17 @@
 #include "Config.h"
 
+TaskHandle_t Core0Task;
+
+void dnsCall(void* pvParameters) {
+  while (true) {
+  }
+}
+
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
   EEPROM.begin(512);
 
-  WiFi.mode(WIFI_AP);
-  WiFi.softAP(SSID, PASSWORD);
-
-  IPAddress apIP(192, 168, 1, 1);
-  WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
 
   delay(2000);
 
@@ -20,6 +22,7 @@ void setup() {
 
   socketRun();
   startHTTPServer();
+  xTaskCreatePinnedToCore(dnsCall, "dnsCall", 10000, NULL, 1, &Core0Task, 0);
 }
 
 void loop() {
