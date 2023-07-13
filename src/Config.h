@@ -1,3 +1,6 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <ESPAsyncWebServer.h>
@@ -6,14 +9,12 @@
 #include "SPIFFS.h"
 #include <WiFi.h>
 #include <AsyncTCP.h>
-#include <ESPmDNS.h>
 #include <WiFiClientSecure.h>
+#include <DNSServer.h>
 
-/* #include <AsyncWebSocket.h> */
-
-#define SSID "xense"
+#define SSID "xenseEnergy"
 #define PASSWORD "12345678"
-#define DOMAIN "xense"
+#define DOMAIN "xenseEnergy.tech"
 #define IRRADIANCE_MAX_VALUE 1000.0
 #define LED_BUILTIN 2
 #define MAX_CLIENTS 8
@@ -21,9 +22,8 @@
 #define MIN_VOLT_ADDR 8
 #define MAX_VOLT_ADDR 16
 
-
-double checkVoltage(const u_int8_t pin);
-double checkIrradiance(const u_int8_t pin);
+double checkVoltage(const uint8_t pin);
+double checkIrradiance(const uint8_t pin);
 void blink();
 void socketRun();
 void sendData();
@@ -33,5 +33,7 @@ String readVoltStoreInEEPROM();
 bool writeVoltStoreInEEPROM(const String& client_irr_settings);
 void switchTest(const String& message);
 String activeClientsJson(int clients);
-void switchPower(u_int8_t powerPin, u_int8_t sensorPin);
+void switchPower(uint8_t powerPin, uint8_t sensorPin);
 extern double irradiance;
+
+#endif  // CONFIG_H
