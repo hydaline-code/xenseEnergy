@@ -47,11 +47,3 @@ Establishing a wireless communication between the hardware outside and the one i
 
 The IOT device cannot be accessed through the internet. It can only be accessed through a local host because the web app is not hosted on a server but on the microcontroller. 
 
-## The team members of this project are:
-Segun Fashina: fashina.segun25@gmail.com
-
-Stanley Osagie: sagiecyber@gmail.com
-
-Oluwatobi Amoniyan: amoniyano1@gmail.com
-
-Chinedum Oliver-Ugwi: chinedumokamgba@gmail.com
