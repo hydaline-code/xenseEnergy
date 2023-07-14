@@ -20,12 +20,15 @@ void setup() {
     return;
   }
 
+  runNetwork();
+
   socketRun();
   startHTTPServer();
-  xTaskCreatePinnedToCore(dnsCall, "dnsCall", 10000, NULL, 1, &Core0Task, 0);
+  //xTaskCreatePinnedToCore(dnsCall, "dnsCall", 10000, NULL, 1, &Core0Task, 0);
 }
 
 void loop() {
+  dnsUpdater();
   sendData();
   switchPower(LED_BUILTIN, SENSOR_PIN);
 }

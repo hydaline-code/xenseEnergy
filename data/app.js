@@ -185,9 +185,12 @@ function setLightThreshold(labelTxt, lightInMem, formID) {
   const form = document.createElement('form');
   form.id = formID;
   form.className = 'set-irr-form';
+  const fieldset1 = document.createElement('fieldset');
+  fieldset1.className = 'fs1';
   const label = document.createElement('label');
   label.for = `${formID}-input`;
   label.textContent = labelTxt;
+  fieldset1.append(label);
 
   const input = document.createElement('input');
   input.type = 'number';
@@ -198,13 +201,18 @@ function setLightThreshold(labelTxt, lightInMem, formID) {
   input.required = true;
   input.value = lightInMem;
 
-  const submitButton = document.createElement('input');
+  const fieldset = document.createElement('fieldset');
+  fieldset.className = 'fs2';
+
+  const submitButton = document.createElement('button');
   submitButton.type = 'submit';
   if (formID !== 'max-entry') {
     submitButton.value = 'Next';
+    submitButton.innerText = 'Next';
     submitButton.id = 'submit';
   } else {
     submitButton.value = 'Submit';
+    submitButton.innerText = 'Submit';
     submitButton.id = 'submit-next';
   }
 
@@ -217,8 +225,11 @@ function setLightThreshold(labelTxt, lightInMem, formID) {
   backBtn.id = 'back-btn';
   backBtn.innerHTML = icons.enter;
 
-  if (formID !== 'max-entry') { form.append(label, input, submitButton, backBtn); } else {
-    form.append(label, input, button, submitButton, backBtn);
+  if (formID !== 'max-entry') { 
+    fieldset.append(submitButton)
+    form.append(fieldset1, input, fieldset, backBtn); } else {
+      fieldset.append(button, submitButton)
+      form.append(fieldset1, input, fieldset, backBtn);
   }
   document.querySelector('#item').appendChild(form);
 }
@@ -268,15 +279,14 @@ window.addEventListener('submit', (e) => {
     if (input) {
       clientSettings.threshold[0] = parseInt(input.value, 10);
       document.querySelector('#min-entry').remove();
-      setLightThreshold('Set maximum intensity', serverSettings.threshold[1], 'max-entry');
+      setLightThreshold('Set max. sunlight threshold', serverSettings.threshold[1], 'max-entry');
       const form = document.querySelector('#max-entry');
       const firstChild = document.querySelector('#max-entry label');
       const h2 = document.createElement('h2');
-      const div = document.createElement('div');
-      div.id = 'error-msg';
-      div.appendChild(h2);
+      const fs1 = document.querySelector('.fs1');
+      fs1.insertBefore(h2, firstChild);
       h2.innerHTML = `${clientSettings.threshold[0]} ${irrUnit}`;
-      form.insertBefore(div, firstChild);
+      form.insertBefore(fs1, document.querySelector('.fs1'));
     }
   } else if (target.matches('#max-entry')) {
     const input = target.querySelector('input');
@@ -293,9 +303,10 @@ window.addEventListener('submit', (e) => {
         formDeliveredMessage();
       } else if (sucessSubmit) {
         const errorMsg = document.createElement('p');
-        errorMsg.innerHTML = 'Minimum can\'t be greater than maximum irradiance!';
-        document.querySelector('#error-msg').appendChild(errorMsg);
-        sucessSubmit = false;
+        errorMsg.innerHTML = 'Min. threshold can\'t exceed max. threshold';
+        const lastElement = document.querySelector('#max-entry').lastElementChild;
+        const parent = document.querySelector('#max-entry');
+        parent.insertBefore(errorMsg, lastElement.previousSibling);
       }
     }
   }
@@ -314,11 +325,11 @@ document.querySelector('body').addEventListener('touchstart', (e) => {
     socket.send(jsonString);
     led = true;
   } else if (target.matches('#threshold, #threshold *')) {
-    setLightThreshold('Set minimum solar', serverSettings.threshold[0], 'min-entry');
+    setLightThreshold('Set min. sunlight threshold', serverSettings.threshold[0], 'min-entry');
     document.querySelector('#threshold').remove();
   } else if (target.matches('#back')) {
     document.querySelector('#max-entry').remove();
-    setLightThreshold('Set minimum solar', clientSettings.threshold[0], 'min-entry');
+    setLightThreshold('Set min. sunlight threshold', clientSettings.threshold[0], 'min-entry');
   } else if (target.matches('#back-btn, #back-btn *')) {
     const item = document.querySelector('#item');
     while (item.firstChild) { item.removeChild(item.firstChild); }

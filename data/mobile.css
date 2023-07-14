@@ -1,7 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Roboto:wght@100;300;400;500;700;900&display=swap');
-
 :root {
   --max-width: 512px;
+}
+
+@keyframes openApp {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
 }
 
 *,
@@ -40,6 +50,40 @@ html {
 body {
   font-family: 'Inter', sans-serif;
   background-image: linear-gradient(to bottom, #f5f5f5, #e8e8e8);
+}
+
+.fs1 {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  font-size: 0.91rem;
+  color: #333;
+  background-color: transparent;
+  border: none;
+  width: 90%;
+}
+
+.fs1 h2 {
+  color: #333;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.fs1 h2::before {
+  content: 'Minimum: ';
+  font-size: 1rem;
+  color: #333;
+  font-weight: 400;
+}
+
+.fs2 {
+  margin-top: 24px;
+  border: none;
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  background-color: transparent;
+  animation: openApp 1s ease-in-out;
 }
 
 footer span {
@@ -260,12 +304,13 @@ header h1 {
 }
 
 main {
-  transition: 0.3s ease all;
   display: flex;
   flex-direction: column;
   color: #333;
   margin: 0 auto;
   max-width: var(--max-width);
+  height: 100vh;
+  transition-duration: 0.4s;
 }
 
 .sun-reading-container {
@@ -401,6 +446,7 @@ main {
   flex-direction: column;
   position: relative;
   padding: 0 24px 24px 24px;
+  text-align: center;
 }
 
 #no-clients::after,
@@ -423,10 +469,13 @@ main {
 }
 
 #threshold {
+  display: flex;
+  align-items: center;
   color: #fff;
   position: absolute;
-  bottom: 70px;
-  right: 24px;
+  bottom: 24px;
+  left: 50%;
+  transform: translate(-50%);
   overflow: hidden;
   z-index: 2;
 }
@@ -460,39 +509,13 @@ main {
   position: relative;
 }
 
-#max-entry div {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 12px;
-  font-size: 0.91rem;
-}
-
-#max-entry div p {
-  color: #bb6855;
-}
-
-#max-entry div h2 {
-  text-align: center;
-  color: #333;
-  font-size: 18px;
-  font-weight: 500;
-}
-
-#max-entry div h2::before {
-  content: 'Minimum Solar: ';
-  font-size: 0.9rem;
-  color: #141e30a4;
-  font-weight: 400;
-}
-
 #max-entry-input,
 #min-entry-input {
   border: 1px solid #f5f5f5;
   height: 40px;
   padding: 4px 12px;
   border-radius: 8px;
-  width: 80%;
+  width: 90%;
   background-image: linear-gradient(to bottom, #f5f5f5, #e8e8e8);
   font-size: 18px;
   font-weight: 500;
@@ -503,46 +526,38 @@ main {
   color: black;
 }
 
-#min-entry {
-  height: 250px;
-}
-
-#max-entry {
-  height: 300px;
+#max-entry p {
+  width: 90%;
+  color: #ec4747a6;
 }
 
 #back {
-  position: absolute;
-  left: 80px;
-  bottom: 100px;
   padding: 4px 12px;
   background-color: #fff;
-  border: 1px solid #141e303d;
+  border: 1px solid #141e304b;
 }
 
 #submit-next {
-  position: absolute;
-  right: 80px;
-  bottom: 100px;
   padding: 4px 12px;
   border: 1px solid #141e303d;
   color: #fff;
   background-color: #3aa945;
 }
 
+#submit-next:active {
+  background-color: #3aa9452a;
+  transition-duration: 0.4s;
+}
+
 #back-btn {
+  margin-top: 24px;
   border: none;
+  flex: content;
   background-color: transparent;
-  position: absolute;
-  bottom: 24px;
   overflow: hidden;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 #submit {
-  position: absolute;
-  bottom: 100px;
   padding: 4px 12px;
   background-color: #fff;
   border: 1px solid #141e303d;

@@ -10,7 +10,6 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <WiFiClientSecure.h>
-#include <DNSServer.h>
 
 #define SSID "xenseEnergy"
 #define PASSWORD "12345678"
@@ -21,6 +20,8 @@
 #define SENSOR_PIN 34
 #define MIN_VOLT_ADDR 8
 #define MAX_VOLT_ADDR 16
+
+
 
 double checkVoltage(const uint8_t pin);
 double checkIrradiance(const uint8_t pin);
@@ -34,6 +35,9 @@ bool writeVoltStoreInEEPROM(const String& client_irr_settings);
 void switchTest(const String& message);
 String activeClientsJson(int clients);
 void switchPower(uint8_t powerPin, uint8_t sensorPin);
+void runNetwork();
+void dnsUpdater();
 extern double irradiance;
+
 
 #endif  // CONFIG_H
