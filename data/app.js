@@ -126,7 +126,7 @@ function reconnect() {
   }
   setTimeout(() => {
     socket = new WebSocket(websocketUrl);
-  }, 2000);
+  }, 1000);
 }
 
 // Connection opened
@@ -241,7 +241,7 @@ async function checkSettingsMatch(serverSettings, clientSettings) {
         serverSettings.threshold[0] === clientSettings.threshold[0]
         && serverSettings.threshold[1] === clientSettings.threshold[1],
       );
-    }, 1000);
+    }, 2000);
   });
 }
 
@@ -251,19 +251,21 @@ function formDeliveredMessage() {
   button.id = 'back-btn';
   const article = document.createElement('article');
   article.className = 'form-submit';
-  const msg = document.createElement('h2');
-  msg.innerHTML = 'Updating...';
-  article.append(msg, button);
+  const msg = document.createElement('div');
+  msg.innerHTML = '<div class="lds-ring"><div></div><div></div><div></div><div></div></div>';
+  article.append(msg);
   document.querySelector('#item').append(article);
   (async () => {
     const settingsMatch = await checkSettingsMatch(serverSettings, clientSettings);
     console.log(settingsMatch);
     if (clientSettings && serverSettings) {
-      msg.innerHTML = 'Energy Manager was updated!';
+      msg.innerHTML = 'Update was successful';
       msg.style.color = green;
       const p = document.createElement('p');
-      p.innerHTML = `Solar threshold is now`;
-      article.append(p);
+      p.innerHTML = `Sunlight threshold is set to`;
+      const h2 = document.createElement('h2');
+      h2.innerHTML = `${serverSettings.threshold[0]}/${serverSettings.threshold[1]}`;
+      article.append(p, h2, button);
     } else {
       msg.innerHTML = 'Error';
       msg.style.color = 'red';
@@ -337,3 +339,9 @@ document.querySelector('body').addEventListener('touchstart', (e) => {
     createThresholdBtn();
   }
 });
+
+window.addEventListener('DOMContentLoaded', () => {
+  window.scrollTo(0, 0);
+})
+
+window.scrollTo(0, 0);

@@ -24,5 +24,5 @@ void runNetwork() {
 
 void dnsUpdater() {
   dnsAP.processNextRequest();
-  EasyDDNS.update(10000, true);
+  /* EasyDDNS.update(10000, true); */
 }
