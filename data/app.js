@@ -86,6 +86,7 @@ function createHomePage() {
 
   item1Content();
   createThresholdBtn();
+  window.scrollTo(0, 0);
 }
 
 // Loging Page
@@ -339,9 +340,3 @@ document.querySelector('body').addEventListener('touchstart', (e) => {
     createThresholdBtn();
   }
 });
-
-window.addEventListener('DOMContentLoaded', () => {
-  window.scrollTo(0, 0);
-})
-
-window.scrollTo(0, 0);
