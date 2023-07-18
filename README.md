@@ -1,5 +1,7 @@
 # PROJECT TITLE: **A Renewable-Energy(Solar) Irradiance-Based Control System**
 
+![Alt text](<Frame 3.jpg>)
+
 ## DESCRIPTION OF THE PROJECT
 This project aims at creating an IOT device that will enable people that make use of solar panels to generate power to efficiently control power-intensive appliances based on the current sunlight level (irradiance). There will be a web application embedded on the ESP32 microcontroller which will enable clients to set parameters based on the irradiance.
 
