@@ -354,7 +354,6 @@ main {
   gap: 24px;
   width: 100%;
   padding: 24px;
-  background: linear-gradient(to bottom right, #ffffff, #f2f2f2);
 }
 
 .item {
@@ -461,7 +460,7 @@ main {
   display: flex;
   flex-direction: column;
   position: relative;
-  padding: 0 24px 24px 24px;
+  padding: 24px 24px 24px 24px;
   text-align: center;
 }
 
@@ -561,8 +560,7 @@ main {
   color: #333;
   text-align: center;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(to bottom right, rgba(245, 245, 245, 0), #e0e0e0, #f5f5f5);
-  
+  border: 1px solid #33333344;  
 }
 
 #max-entry p {
@@ -571,13 +569,13 @@ main {
 }
 
 #back {
-  padding: 4px 12px;
+  padding: 8px 24px;
   background-color: #fff;
   border: 1px solid #141e304b;
 }
 
 #submit-next {
-  padding: 4px 12px;
+  padding: 8px 24px;
   border: 1px solid #141e303d;
   color: #fff;
   background-color: #3aa945;
@@ -597,7 +595,7 @@ main {
 }
 
 #submit {
-  padding: 4px 12px;
+  padding: 8px 24px;
   background-color: #fff;
   border: 1px solid #141e303d;
   color: #141e30;

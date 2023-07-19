@@ -82,10 +82,12 @@ function createHomePage() {
   article2.className = 'item2 item';
   section.append(article2, article1, article);
   main.append(div, section);
+  main.style.background = 'linear-gradient(to bottom right, #ffffff, #f2f2f2)';
   document.querySelector('.item2').innerHTML = 'Maximum normal surface irradiance is approximately 1000 W/m&#178; at sea level on a clear day';
 
   item1Content();
   createThresholdBtn();
+  window.scrollTo(0, 0);
 }
 
 // Loging Page
@@ -179,7 +181,11 @@ socket.addEventListener('message', (e) => {
       clientConnected();
     }
   }
-});
+
+  if (Object.prototype.hasOwnProperty.call(jsonData, 'availableWifi')) {
+    console.log(jsonData); //-------------------------------------------------------
+  }
+ });
 
 function setLightThreshold(labelTxt, lightInMem, formID) {
   const form = document.createElement('form');
@@ -241,7 +247,7 @@ async function checkSettingsMatch(serverSettings, clientSettings) {
         serverSettings.threshold[0] === clientSettings.threshold[0]
         && serverSettings.threshold[1] === clientSettings.threshold[1],
       );
-    }, 2000000);
+    }, 2000);
   });
 }
 
@@ -337,5 +343,8 @@ document.querySelector('body').addEventListener('touchstart', (e) => {
     while (item.firstChild) { item.removeChild(item.firstChild); }
 
     createThresholdBtn();
+  } else if (target.matches('footer, footer *')) {
+    const msg = 'getWifiScan';
+    socket.send(msg);
   }
 });

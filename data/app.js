@@ -82,6 +82,7 @@ function createHomePage() {
   article2.className = 'item2 item';
   section.append(article2, article1, article);
   main.append(div, section);
+  main.style.background = 'linear-gradient(to bottom right, #ffffff, #f2f2f2)';
   document.querySelector('.item2').innerHTML = 'Maximum normal surface irradiance is approximately 1000 W/m&#178; at sea level on a clear day';
 
   item1Content();
@@ -180,6 +181,10 @@ socket.addEventListener('message', (e) => {
       clientConnected();
     }
   }
+
+  if (Object.prototype.hasOwnProperty.call(jsonData, 'availableWifi')) {
+    console.log(jsonData); //-------------------------------------------------------
+  }
 });
 
 function setLightThreshold(labelTxt, lightInMem, formID) {
@@ -265,7 +270,7 @@ function formDeliveredMessage() {
       const p = document.createElement('p');
       p.innerHTML = `Sunlight threshold is set to`;
       const h2 = document.createElement('h2');
-      h2.innerHTML = `${serverSettings.threshold[0]}/${serverSettings.threshold[1]}`;
+      h2.innerHTML = `${serverSettings.threshold[0]} &#x2194 ${serverSettings.threshold[1]} ${irrUnit}`;
       article.append(p, h2, button);
     } else {
       msg.innerHTML = 'Error';
@@ -338,5 +343,8 @@ document.querySelector('body').addEventListener('touchstart', (e) => {
     while (item.firstChild) { item.removeChild(item.firstChild); }
 
     createThresholdBtn();
+  } else if (target.matches('#no-clients')) {
+    const msg = 'getWifiScan';
+    socket.send(msg);
   }
 });

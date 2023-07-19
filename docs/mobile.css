@@ -354,7 +354,6 @@ main {
   gap: 24px;
   width: 100%;
   padding: 24px;
-  background: linear-gradient(to bottom right, #ffffff, #f2f2f2);
 }
 
 .item {
@@ -461,7 +460,7 @@ main {
   display: flex;
   flex-direction: column;
   position: relative;
-  padding: 0 24px 24px 24px;
+  padding: 24px 24px 24px 24px;
   text-align: center;
 }
 
@@ -597,7 +596,7 @@ main {
 }
 
 #submit {
-  padding: 4px 12px;
+  padding: 8px 12px;
   background-color: #fff;
   border: 1px solid #141e303d;
   color: #141e30;
